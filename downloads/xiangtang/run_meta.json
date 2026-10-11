@@ -2,27 +2,27 @@
   "schema": 1,
   "version": "v0.2.0",
   "script": "pipeline_v2.py",
-  "time": "2026-10-12 00:05:58",
+  "time": "2026-10-12 01:02:13",
   "argv": [
     "pipeline_v2.py",
     "--video",
     "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\downloads\\BV1CFRGBVEpo_00m24s-00m59s_h264.mp4",
     "--roi",
-    "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\roi\\roi_image50.json",
+    "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\roi\\roi_image50\\roi.json",
     "--veh-jsonl",
-    "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\..\\_reuse\\run\\ax_fixture_src\\veh_ax_fixture_src.jsonl",
+    "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\..\\_reuse\\run\\xiangtang\\veh_xiangtang.jsonl",
     "--outdir",
-    "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\..\\_reuse\\run\\ax_fixture_src",
+    "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\..\\_reuse\\run\\xiangtang",
     "--no-mask-detect",
     "--onnx",
     "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\onnx"
   ],
   "args": {
     "video": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\downloads\\BV1CFRGBVEpo_00m24s-00m59s_h264.mp4",
-    "roi": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\roi\\roi_image50.json",
-    "veh_jsonl": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\run\\ax_fixture_src\\veh_ax_fixture_src.jsonl",
+    "roi": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\roi\\roi_image50\\roi.json",
+    "veh_jsonl": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\run\\xiangtang\\veh_xiangtang.jsonl",
     "onnx": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\onnx",
-    "outdir": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\run\\ax_fixture_src",
+    "outdir": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\run\\xiangtang",
     "plate_conf": 0.15,
     "pad_ratio": 1.5,
     "up": 6.0,
@@ -33,7 +33,7 @@
     "max_frames": 16
   },
   "python": "3.12.10",
-  "git_commit": "1e2686a",
+  "git_commit": "99f07bc",
   "video": {
     "path": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\downloads\\BV1CFRGBVEpo_00m24s-00m59s_h264.mp4",
     "size": 42923630,
@@ -44,10 +44,10 @@
     "n_frames": 1170
   },
   "roi": {
-    "path": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\roi\\roi_image50.json",
-    "sha256": "8842ef8a3d7acf84e3595a6d557ff472841911c5028b6576042b92686a584874",
+    "path": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\roi\\roi_image50\\roi.json",
+    "sha256": "1817d54aae573ea9eb4f7fd6148e2de69ddf4789f5cd922cdc085f104d24dbf0",
     "mode": "polygon",
-    "shot": null,
+    "shot": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\downloads\\image_50.png",
     "roi_video_size": [
       1920,
       1080
@@ -284,235 +284,235 @@
     ],
     "polygon_px_in_roi_file": [
       [
-        2158,
-        951
+        2158.248291015625,
+        950.5648803710938
       ],
       [
-        2157,
-        973
+        2156.599365234375,
+        972.8244018554688
       ],
       [
-        2131,
-        1257
+        2131.04345703125,
+        1257.251953125
       ],
       [
-        1289,
-        1257
+        1288.5186767578125,
+        1257.251953125
       ],
       [
-        1035,
-        1155
+        1035.4315185546875,
+        1155.02294921875
       ],
       [
-        1034,
-        1154
+        1033.78271484375,
+        1154.198486328125
       ],
       [
-        1025,
-        1149
+        1024.7144775390625,
+        1149.251953125
       ],
       [
-        1007,
-        1139
+        1006.5779418945312,
+        1139.3587646484375
       ],
       [
-        972,
-        1120
+        971.95361328125,
+        1120.39697265625
       ],
       [
-        955,
-        1111
+        955.4658813476562,
+        1111.3282470703125
       ],
       [
-        898,
-        1072
+        897.7586669921875,
+        1071.7557373046875
       ],
       [
-        713,
-        941
+        713.0957641601562,
+        940.6717529296875
       ],
       [
-        707,
-        937
+        707.3250122070312,
+        936.5496215820312
       ],
       [
-        698,
-        930
+        698.2567749023438,
+        929.9542236328125
       ],
       [
-        689,
-        923
+        689.1884765625,
+        923.3587646484375
       ],
       [
-        622,
-        874
+        622.4130249023438,
+        873.8931274414062
       ],
       [
-        609,
-        864
+        609.2228393554688,
+        864.0
       ],
       [
-        608,
-        863
+        608.3984375,
+        863.1755981445312
       ],
       [
-        509,
-        760
+        508.6474914550781,
+        760.1221313476562
       ],
       [
-        508,
-        758
+        507.8230895996094,
+        758.4732666015625
       ],
       [
-        508,
-        685
+        507.8230895996094,
+        685.0992431640625
       ],
       [
-        509,
-        644
+        508.6474914550781,
+        643.8778686523438
       ],
       [
-        509,
-        637
+        509.47186279296875,
+        637.282470703125
       ],
       [
-        510,
-        632
+        510.2962646484375,
+        631.511474609375
       ],
       [
-        523,
-        556
+        522.662109375,
+        555.6641235351562
       ],
       [
-        523,
-        552
+        523.4864501953125,
+        552.3663940429688
       ],
       [
-        524,
-        549
+        524.3108520507812,
+        549.0687255859375
       ],
       [
-        525,
-        547
+        525.13525390625,
+        547.4198608398438
       ],
       [
-        532,
-        542
+        531.7303466796875,
+        542.4732666015625
       ],
       [
-        534,
-        541
+        534.2034912109375,
+        540.8244018554688
       ],
       [
-        561,
-        524
+        561.4083251953125,
+        524.3358764648438
       ],
       [
-        574,
-        517
+        573.774169921875,
+        516.916015625
       ],
       [
-        578,
-        514
+        577.8961181640625,
+        514.4427490234375
       ],
       [
-        583,
-        512
+        582.8424072265625,
+        511.9694519042969
       ],
       [
-        586,
-        510
+        586.1399536132812,
+        510.32061767578125
       ],
       [
-        603,
-        503
+        602.6277465820312,
+        502.9007568359375
       ],
       [
-        619,
-        495
+        619.115478515625,
+        495.4809265136719
       ],
       [
-        627,
-        492
+        626.5349731445312,
+        492.1831970214844
       ],
       [
-        632,
-        490
+        632.3057250976562,
+        489.7099304199219
       ],
       [
-        646,
-        484
+        646.3203125,
+        483.9389343261719
       ],
       [
-        669,
-        475
+        668.5787963867188,
+        474.8702392578125
       ],
       [
-        677,
-        472
+        676.8226928710938,
+        471.572509765625
       ],
       [
-        679,
-        471
+        679.2958374023438,
+        470.7480773925781
       ],
       [
-        682,
-        470
+        681.7689819335938,
+        469.9236755371094
       ],
       [
-        774,
-        442
+        774.1004638671875,
+        441.89312744140625
       ],
       [
-        784,
-        441
+        783.9931030273438,
+        441.0686950683594
       ],
       [
-        796,
-        440
+        795.5345458984375,
+        440.2442626953125
       ],
       [
-        799,
-        440
+        798.8320922851562,
+        440.2442626953125
       ],
       [
-        828,
-        442
+        827.6857299804688,
+        441.89312744140625
       ],
       [
-        842,
-        443
+        841.7003173828125,
+        442.7175598144531
       ],
       [
-        1176,
-        477
+        1175.5775146484375,
+        476.5190734863281
       ],
       [
-        2148,
-        635
+        2148.35546875,
+        634.8091430664062
       ],
       [
-        2150,
-        636
+        2150.00439453125,
+        635.6336059570312
       ],
       [
-        2152,
-        641
+        2152.4775390625,
+        640.5801391601562
       ],
       [
-        2154,
-        651
+        2154.126220703125,
+        651.2977294921875
       ],
       [
-        2157,
-        676
+        2157.423828125,
+        676.030517578125
       ],
       [
-        2158,
-        683
+        2158.248291015625,
+        682.6259765625
       ]
     ],
-    "lane_top_norm": null,
+    "lane_top_norm": 0.407634,
     "polygon_px": [
       [
         2158.2,
@@ -755,7 +755,7 @@
   },
   "inputs": {
     "veh_jsonl": {
-      "path": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\run\\ax_fixture_src\\veh_ax_fixture_src.jsonl",
+      "path": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\run\\xiangtang\\veh_xiangtang.jsonl",
       "size": 371441,
       "sha256": "42f3eae2b89b0f69f8057d42b0b0f228e404dff4e38c586af1ca85a48d321c1d"
     },
@@ -778,29 +778,29 @@
     "schema": 1,
     "version": "v0.2.0",
     "script": "make_outputs.py",
-    "time": "2026-10-12 00:06:05",
+    "time": "2026-10-12 01:02:19",
     "argv": [
       "make_outputs.py",
       "--result",
-      "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\..\\_reuse\\run\\ax_fixture_src\\result_merged.json",
+      "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\..\\_reuse\\run\\xiangtang\\result_merged.json",
       "--video",
       "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\downloads\\BV1CFRGBVEpo_00m24s-00m59s_h264.mp4",
       "--outdir",
-      "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\downloads\\ax_fixture_src",
+      "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\downloads\\xiangtang",
       "--time-mode",
       "clock",
       "--base-ts",
       "2023-03-04 15:38:02"
     ],
     "args": {
-      "result": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\run\\ax_fixture_src\\result_merged.json",
+      "result": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\run\\xiangtang\\result_merged.json",
       "video": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\downloads\\BV1CFRGBVEpo_00m24s-00m59s_h264.mp4",
-      "outdir": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\downloads\\ax_fixture_src",
+      "outdir": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\downloads\\xiangtang",
       "base_ts": "2023-03-04 15:38:02",
       "time_mode": "clock"
     },
     "python": "3.12.10",
-    "git_commit": "1e2686a",
+    "git_commit": "99f07bc",
     "video": {
       "path": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\downloads\\BV1CFRGBVEpo_00m24s-00m59s_h264.mp4",
       "size": 42923630,
@@ -812,56 +812,56 @@
     },
     "inputs": {
       "result_in": {
-        "path": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\run\\ax_fixture_src\\result_merged.json",
-        "size": 60457,
-        "sha256": "54aa65321fbad563cca48579627910e10eda6ced208279cba964dd3fbc3e9348"
+        "path": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\run\\xiangtang\\result_merged.json",
+        "size": 61956,
+        "sha256": "ba1cccf86780ee35a58d5c49baf752478148e42588f48cd785bad4cb692deb32"
       }
     },
     "time_mode": "clock",
     "base_timestamp": "2023-03-04 15:38:02",
     "n_vehicles": 10,
     "outputs": {
-      "csv": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\downloads\\ax_fixture_src\\检测结果.csv",
-      "json": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\downloads\\ax_fixture_src\\检测结果.json",
-      "evidence_dir": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\downloads\\ax_fixture_src\\证据图"
+      "csv": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\downloads\\xiangtang\\检测结果.csv",
+      "json": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\downloads\\xiangtang\\检测结果.json",
+      "evidence_dir": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\downloads\\xiangtang\\证据图"
     }
   },
   "merge": {
     "schema": 1,
     "version": "v0.2.0",
     "script": "merge_tracks.py",
-    "time": "2026-10-12 00:06:01",
+    "time": "2026-10-12 01:02:15",
     "argv": [
       "merge_tracks.py",
       "--result",
-      "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\..\\_reuse\\run\\ax_fixture_src\\result.json",
+      "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\..\\_reuse\\run\\xiangtang\\result.json",
       "--veh-jsonl",
-      "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\..\\_reuse\\run\\ax_fixture_src\\veh_ax_fixture_src.jsonl",
+      "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\..\\_reuse\\run\\xiangtang\\veh_xiangtang.jsonl",
       "--out",
-      "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\..\\_reuse\\run\\ax_fixture_src\\result_merged.json",
+      "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\..\\_reuse\\run\\xiangtang\\result_merged.json",
       "--time-tol-frames",
       "12",
       "--dist-max",
       "1.5"
     ],
     "args": {
-      "result": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\run\\ax_fixture_src\\result.json",
-      "veh_jsonl": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\run\\ax_fixture_src\\veh_ax_fixture_src.jsonl",
-      "out": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\run\\ax_fixture_src\\result_merged.json",
+      "result": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\run\\xiangtang\\result.json",
+      "veh_jsonl": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\run\\xiangtang\\veh_xiangtang.jsonl",
+      "out": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\run\\xiangtang\\result_merged.json",
       "gap_max": 3.0,
       "dist_max": 1.5,
       "time_tol_frames": 12
     },
     "python": "3.12.10",
-    "git_commit": "1e2686a",
+    "git_commit": "99f07bc",
     "inputs": {
       "result_in": {
-        "path": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\run\\ax_fixture_src\\result.json",
-        "size": 62393,
-        "sha256": "e82a7328ba12cccd533af758bc0a9c6a047abeb19dedc53bb8537950858ff5a9"
+        "path": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\run\\xiangtang\\result.json",
+        "size": 63952,
+        "sha256": "6267c572663dc2ac4679d676118b5d79293f87be57cac2aebfd6bec42e7b7635"
       },
       "veh_jsonl": {
-        "path": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\run\\ax_fixture_src\\veh_ax_fixture_src.jsonl",
+        "path": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\run\\xiangtang\\veh_xiangtang.jsonl",
         "size": 371441,
         "sha256": "42f3eae2b89b0f69f8057d42b0b0f228e404dff4e38c586af1ca85a48d321c1d"
       }
@@ -869,9 +869,9 @@
     "n_cases_before_merge": 14,
     "n_cases_after_merge": 10,
     "outputs": {
-      "result_out": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\run\\ax_fixture_src\\result_merged.json",
-      "size": 58272,
-      "sha256": "1b5dab1648bb7a65328265ea04d2b5434133536ed051e2b1136012c0364a751e"
+      "result_out": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\run\\xiangtang\\result_merged.json",
+      "size": 59831,
+      "sha256": "d0ea0f4f5a1b3b999cca112b0e9a4d17e257c5ac1004397cc8372b720dbad147"
     }
   },
   "script_chain": [

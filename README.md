@@ -48,6 +48,7 @@
 ```
 d:\Users\Lhh\Documents\dsh\yingjichedao\
 ├── README.md                  ← 本文件
+├── 操作步骤.html               ★ 图文操作步骤 + 流程图总览（内联 Archify 工作流图，自包含）
 ├── requirements.txt           Python 依赖（从实际 .venv 冻结）
 ├── requirements-torch.txt     torch/torchvision 单独装（`+cpu` 只有官方索引有）
 ├── ai_task_v0.1.0.md          ★ 交接文档（现行）；v0.0.0 是最初《任务口述》
@@ -134,6 +135,9 @@ _reuse\test_python.bat          rem 文本卫生 + Python 7 组 + C 侧三个测
 > 日常使用只需跑 `.bat`，它们用 `%~dp0` 自动定位，不受影响。
 
 ## 快速开始
+
+> 图文版操作步骤（含流程图总览）见 **[`操作步骤.html`](操作步骤.html)**，浏览器打开即可，
+> 里面是按本机实跑截图整理的 7 个步骤与常见问题。
 
 ### 1. 跑回归测试（改代码后必做）
 
