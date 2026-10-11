@@ -1,0 +1,880 @@
+{
+  "schema": 1,
+  "version": "v0.1.1",
+  "script": "pipeline_v2.py",
+  "time": "2026-10-11 19:23:41",
+  "argv": [
+    "pipeline_v2.py",
+    "--video",
+    "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\downloads\\BV1CFRGBVEpo_00m24s-00m59s_h264.mp4",
+    "--roi",
+    "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\roi\\roi_image50.json",
+    "--veh-jsonl",
+    "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\..\\_reuse\\run\\xt_v011\\veh_xt_v011.jsonl",
+    "--outdir",
+    "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\..\\_reuse\\run\\xt_v011",
+    "--no-mask-detect",
+    "--onnx",
+    "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\onnx"
+  ],
+  "args": {
+    "video": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\downloads\\BV1CFRGBVEpo_00m24s-00m59s_h264.mp4",
+    "roi": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\roi\\roi_image50.json",
+    "veh_jsonl": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\run\\xt_v011\\veh_xt_v011.jsonl",
+    "onnx": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\onnx",
+    "outdir": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\run\\xt_v011",
+    "plate_conf": 0.15,
+    "pad_ratio": 1.5,
+    "up": 6.0,
+    "mask_dilate": 0,
+    "no_mask_detect": true,
+    "tighten": 1.0,
+    "high_conf": 0.9,
+    "max_frames": 16
+  },
+  "python": "3.12.10",
+  "git_commit": null,
+  "video": {
+    "path": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\downloads\\BV1CFRGBVEpo_00m24s-00m59s_h264.mp4",
+    "size": 42923630,
+    "sha256": "7a048e0262f7b1eacece51ec5b27546a85a38a7ac89ba1ccfdaf9fa5851af3a4",
+    "width": 1920,
+    "height": 1080,
+    "fps": 30.0,
+    "n_frames": 1170
+  },
+  "roi": {
+    "path": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\roi\\roi_image50.json",
+    "sha256": "8842ef8a3d7acf84e3595a6d557ff472841911c5028b6576042b92686a584874",
+    "mode": "polygon",
+    "shot": null,
+    "roi_video_size": [
+      1920,
+      1080
+    ],
+    "polygon_norm": [
+      [
+        1.124088,
+        0.880153
+      ],
+      [
+        1.123229,
+        0.900763
+      ],
+      [
+        1.109918,
+        1.164122
+      ],
+      [
+        0.671103,
+        1.164122
+      ],
+      [
+        0.539287,
+        1.069466
+      ],
+      [
+        0.538428,
+        1.068702
+      ],
+      [
+        0.533705,
+        1.064122
+      ],
+      [
+        0.524259,
+        1.054962
+      ],
+      [
+        0.506226,
+        1.037405
+      ],
+      [
+        0.497638,
+        1.029008
+      ],
+      [
+        0.467583,
+        0.992366
+      ],
+      [
+        0.371404,
+        0.870992
+      ],
+      [
+        0.368398,
+        0.867176
+      ],
+      [
+        0.363675,
+        0.861069
+      ],
+      [
+        0.358952,
+        0.854962
+      ],
+      [
+        0.324173,
+        0.80916
+      ],
+      [
+        0.317304,
+        0.8
+      ],
+      [
+        0.316874,
+        0.799237
+      ],
+      [
+        0.264921,
+        0.703817
+      ],
+      [
+        0.264491,
+        0.70229
+      ],
+      [
+        0.264491,
+        0.634351
+      ],
+      [
+        0.264921,
+        0.596183
+      ],
+      [
+        0.26535,
+        0.590076
+      ],
+      [
+        0.265779,
+        0.584733
+      ],
+      [
+        0.27222,
+        0.514504
+      ],
+      [
+        0.272649,
+        0.51145
+      ],
+      [
+        0.273079,
+        0.508397
+      ],
+      [
+        0.273508,
+        0.50687
+      ],
+      [
+        0.276943,
+        0.50229
+      ],
+      [
+        0.278231,
+        0.500763
+      ],
+      [
+        0.2924,
+        0.485496
+      ],
+      [
+        0.298841,
+        0.478626
+      ],
+      [
+        0.300988,
+        0.476336
+      ],
+      [
+        0.303564,
+        0.474046
+      ],
+      [
+        0.305281,
+        0.472519
+      ],
+      [
+        0.313869,
+        0.465649
+      ],
+      [
+        0.322456,
+        0.458779
+      ],
+      [
+        0.32632,
+        0.455725
+      ],
+      [
+        0.329326,
+        0.453435
+      ],
+      [
+        0.336625,
+        0.448092
+      ],
+      [
+        0.348218,
+        0.439695
+      ],
+      [
+        0.352512,
+        0.436641
+      ],
+      [
+        0.3538,
+        0.435878
+      ],
+      [
+        0.355088,
+        0.435115
+      ],
+      [
+        0.403177,
+        0.40916
+      ],
+      [
+        0.40833,
+        0.408397
+      ],
+      [
+        0.414341,
+        0.407634
+      ],
+      [
+        0.416058,
+        0.407634
+      ],
+      [
+        0.431086,
+        0.40916
+      ],
+      [
+        0.438386,
+        0.409924
+      ],
+      [
+        0.61228,
+        0.441221
+      ],
+      [
+        1.118935,
+        0.587786
+      ],
+      [
+        1.119794,
+        0.58855
+      ],
+      [
+        1.121082,
+        0.59313
+      ],
+      [
+        1.121941,
+        0.603053
+      ],
+      [
+        1.123658,
+        0.625954
+      ],
+      [
+        1.124088,
+        0.632061
+      ]
+    ],
+    "polygon_px_in_roi_file": [
+      [
+        2158,
+        951
+      ],
+      [
+        2157,
+        973
+      ],
+      [
+        2131,
+        1257
+      ],
+      [
+        1289,
+        1257
+      ],
+      [
+        1035,
+        1155
+      ],
+      [
+        1034,
+        1154
+      ],
+      [
+        1025,
+        1149
+      ],
+      [
+        1007,
+        1139
+      ],
+      [
+        972,
+        1120
+      ],
+      [
+        955,
+        1111
+      ],
+      [
+        898,
+        1072
+      ],
+      [
+        713,
+        941
+      ],
+      [
+        707,
+        937
+      ],
+      [
+        698,
+        930
+      ],
+      [
+        689,
+        923
+      ],
+      [
+        622,
+        874
+      ],
+      [
+        609,
+        864
+      ],
+      [
+        608,
+        863
+      ],
+      [
+        509,
+        760
+      ],
+      [
+        508,
+        758
+      ],
+      [
+        508,
+        685
+      ],
+      [
+        509,
+        644
+      ],
+      [
+        509,
+        637
+      ],
+      [
+        510,
+        632
+      ],
+      [
+        523,
+        556
+      ],
+      [
+        523,
+        552
+      ],
+      [
+        524,
+        549
+      ],
+      [
+        525,
+        547
+      ],
+      [
+        532,
+        542
+      ],
+      [
+        534,
+        541
+      ],
+      [
+        561,
+        524
+      ],
+      [
+        574,
+        517
+      ],
+      [
+        578,
+        514
+      ],
+      [
+        583,
+        512
+      ],
+      [
+        586,
+        510
+      ],
+      [
+        603,
+        503
+      ],
+      [
+        619,
+        495
+      ],
+      [
+        627,
+        492
+      ],
+      [
+        632,
+        490
+      ],
+      [
+        646,
+        484
+      ],
+      [
+        669,
+        475
+      ],
+      [
+        677,
+        472
+      ],
+      [
+        679,
+        471
+      ],
+      [
+        682,
+        470
+      ],
+      [
+        774,
+        442
+      ],
+      [
+        784,
+        441
+      ],
+      [
+        796,
+        440
+      ],
+      [
+        799,
+        440
+      ],
+      [
+        828,
+        442
+      ],
+      [
+        842,
+        443
+      ],
+      [
+        1176,
+        477
+      ],
+      [
+        2148,
+        635
+      ],
+      [
+        2150,
+        636
+      ],
+      [
+        2152,
+        641
+      ],
+      [
+        2154,
+        651
+      ],
+      [
+        2157,
+        676
+      ],
+      [
+        2158,
+        683
+      ]
+    ],
+    "lane_top_norm": null,
+    "polygon_px": [
+      [
+        2158.2,
+        950.6
+      ],
+      [
+        2156.6,
+        972.8
+      ],
+      [
+        2131.0,
+        1257.3
+      ],
+      [
+        1288.5,
+        1257.3
+      ],
+      [
+        1035.4,
+        1155.0
+      ],
+      [
+        1033.8,
+        1154.2
+      ],
+      [
+        1024.7,
+        1149.3
+      ],
+      [
+        1006.6,
+        1139.4
+      ],
+      [
+        972.0,
+        1120.4
+      ],
+      [
+        955.5,
+        1111.3
+      ],
+      [
+        897.8,
+        1071.8
+      ],
+      [
+        713.1,
+        940.7
+      ],
+      [
+        707.3,
+        936.6
+      ],
+      [
+        698.3,
+        930.0
+      ],
+      [
+        689.2,
+        923.4
+      ],
+      [
+        622.4,
+        873.9
+      ],
+      [
+        609.2,
+        864.0
+      ],
+      [
+        608.4,
+        863.2
+      ],
+      [
+        508.6,
+        760.1
+      ],
+      [
+        507.8,
+        758.5
+      ],
+      [
+        507.8,
+        685.1
+      ],
+      [
+        508.6,
+        643.9
+      ],
+      [
+        509.5,
+        637.3
+      ],
+      [
+        510.3,
+        631.5
+      ],
+      [
+        522.7,
+        555.7
+      ],
+      [
+        523.5,
+        552.4
+      ],
+      [
+        524.3,
+        549.1
+      ],
+      [
+        525.1,
+        547.4
+      ],
+      [
+        531.7,
+        542.5
+      ],
+      [
+        534.2,
+        540.8
+      ],
+      [
+        561.4,
+        524.3
+      ],
+      [
+        573.8,
+        516.9
+      ],
+      [
+        577.9,
+        514.4
+      ],
+      [
+        582.8,
+        512.0
+      ],
+      [
+        586.1,
+        510.3
+      ],
+      [
+        602.6,
+        502.9
+      ],
+      [
+        619.1,
+        495.5
+      ],
+      [
+        626.5,
+        492.2
+      ],
+      [
+        632.3,
+        489.7
+      ],
+      [
+        646.3,
+        483.9
+      ],
+      [
+        668.6,
+        474.9
+      ],
+      [
+        676.8,
+        471.6
+      ],
+      [
+        679.3,
+        470.7
+      ],
+      [
+        681.8,
+        469.9
+      ],
+      [
+        774.1,
+        441.9
+      ],
+      [
+        784.0,
+        441.1
+      ],
+      [
+        795.5,
+        440.2
+      ],
+      [
+        798.8,
+        440.2
+      ],
+      [
+        827.7,
+        441.9
+      ],
+      [
+        841.7,
+        442.7
+      ],
+      [
+        1175.6,
+        476.5
+      ],
+      [
+        2148.4,
+        634.8
+      ],
+      [
+        2150.0,
+        635.6
+      ],
+      [
+        2152.5,
+        640.6
+      ],
+      [
+        2154.1,
+        651.3
+      ],
+      [
+        2157.4,
+        676.0
+      ],
+      [
+        2158.2,
+        682.6
+      ]
+    ],
+    "bbox_px": [
+      507.8,
+      440.2,
+      2158.2,
+      1257.3
+    ],
+    "warnings": [
+      "ROI 多边形有 16 个顶点归一化坐标越界（>1 或 <0），换算到视频坐标后超出画面：[[1.124088, 0.880153], [1.123229, 0.900763], [1.109918, 1.164122]] —— 说明标定时截图里的视频区域没被正确识别（--shot 的黑边/缩放），该 ROI 的右边界会被画面截断，与预期不一致，建议重标"
+    ]
+  },
+  "inputs": {
+    "veh_jsonl": {
+      "path": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\run\\xt_v011\\veh_xt_v011.jsonl",
+      "size": 371441,
+      "sha256": "42f3eae2b89b0f69f8057d42b0b0f228e404dff4e38c586af1ca85a48d321c1d"
+    },
+    "plate_detect_onnx": {
+      "path": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\onnx\\plate_detect.onnx",
+      "size": 701212,
+      "sha256": "07ceeb92e55e6e08e64b0a1242e88088623087014d3da78958ab2d4c7ccac5de"
+    }
+  },
+  "video_size": [
+    1920,
+    1080
+  ],
+  "video_fps_declared": 30.0,
+  "n_roi_tracks": 14,
+  "n_confirmed": 11,
+  "n_suspect": 3,
+  "n_unreadable": 0,
+  "outputs": {
+    "schema": 1,
+    "version": "v0.1.1",
+    "script": "make_outputs.py",
+    "time": "2026-10-11 19:23:44",
+    "argv": [
+      "make_outputs.py",
+      "--result",
+      "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\..\\_reuse\\run\\xt_v011\\result_merged.json",
+      "--video",
+      "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\downloads\\BV1CFRGBVEpo_00m24s-00m59s_h264.mp4",
+      "--outdir",
+      "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\downloads\\xt_v011",
+      "--time-mode",
+      "clock"
+    ],
+    "args": {
+      "result": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\run\\xt_v011\\result_merged.json",
+      "video": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\downloads\\BV1CFRGBVEpo_00m24s-00m59s_h264.mp4",
+      "outdir": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\downloads\\xt_v011",
+      "base_ts": null,
+      "time_mode": "clock"
+    },
+    "python": "3.12.10",
+    "git_commit": null,
+    "video": {
+      "path": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\downloads\\BV1CFRGBVEpo_00m24s-00m59s_h264.mp4",
+      "size": 42923630,
+      "sha256": "7a048e0262f7b1eacece51ec5b27546a85a38a7ac89ba1ccfdaf9fa5851af3a4",
+      "width": 1920,
+      "height": 1080,
+      "fps": 30.0,
+      "n_frames": 1170
+    },
+    "inputs": {
+      "result_in": {
+        "path": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\run\\xt_v011\\result_merged.json",
+        "size": 56842,
+        "sha256": "41e637ed248bd59231d40b3d21586391b276b39b3835da77700998d0f73977d1"
+      }
+    },
+    "time_mode": "clock",
+    "base_timestamp": "2023-03-04 15:38:02",
+    "n_vehicles": 10,
+    "outputs": {
+      "csv": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\downloads\\xt_v011\\检测结果.csv",
+      "json": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\downloads\\xt_v011\\检测结果.json",
+      "evidence_dir": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\downloads\\xt_v011\\证据图"
+    }
+  },
+  "merge": {
+    "schema": 1,
+    "version": "v0.1.1",
+    "script": "merge_tracks.py",
+    "time": "2026-10-11 19:23:42",
+    "argv": [
+      "merge_tracks.py",
+      "--result",
+      "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\..\\_reuse\\run\\xt_v011\\result.json",
+      "--veh-jsonl",
+      "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\..\\_reuse\\run\\xt_v011\\veh_xt_v011.jsonl",
+      "--out",
+      "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\..\\_reuse\\run\\xt_v011\\result_merged.json",
+      "--time-tol-frames",
+      "12",
+      "--dist-max",
+      "1.5"
+    ],
+    "args": {
+      "result": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\run\\xt_v011\\result.json",
+      "veh_jsonl": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\run\\xt_v011\\veh_xt_v011.jsonl",
+      "out": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\run\\xt_v011\\result_merged.json",
+      "gap_max": 3.0,
+      "dist_max": 1.5,
+      "time_tol_frames": 12
+    },
+    "python": "3.12.10",
+    "git_commit": null,
+    "inputs": {
+      "result_in": {
+        "path": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\run\\xt_v011\\result.json",
+        "size": 57710,
+        "sha256": "8a030ddc4ceb7c2e05437450a540b1677986d881eecbea847001b3fcd0c2d2bb"
+      },
+      "veh_jsonl": {
+        "path": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\run\\xt_v011\\veh_xt_v011.jsonl",
+        "size": 371441,
+        "sha256": "42f3eae2b89b0f69f8057d42b0b0f228e404dff4e38c586af1ca85a48d321c1d"
+      }
+    },
+    "n_cases_before_merge": 14,
+    "n_cases_after_merge": 10,
+    "outputs": {
+      "result_out": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\run\\xt_v011\\result_merged.json",
+      "size": 54746,
+      "sha256": "a094525906676591a13ab570ae373cf527d958c3c088f6c53f7b71aad3e519a3"
+    }
+  },
+  "script_chain": [
+    "pipeline_v2.py",
+    "merge_tracks.py",
+    "make_outputs.py"
+  ]
+}

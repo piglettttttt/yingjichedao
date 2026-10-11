@@ -1,0 +1,43 @@
+# Python 运行环境与缓存
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# 自带外部工具：约 221 MB，可按下 bin/README.md 的版本重新放回
+bin/*.exe
+bin/*.dll
+
+# 视频与派生产物：体积大且可重新获取，不入库
+# （入库的只有 downloads/目押记录.xlsx 与 downloads/xiangtang/参考结果.xlsx 两份比对真值）
+downloads/**/*.mp4
+downloads/**/*.avi
+downloads/**/*.mkv
+downloads/**/*.mov
+downloads/**/*.png
+downloads/**/*.bmp
+downloads/**/证据图/
+downloads/**/人工审核结果/
+# 允许的真值表（! 生效需父目录未被排除：这里只排除上面几类，故无需额外放行）
+
+# 中间产物：重跑即可再生
+_reuse/run/
+
+# 编译产物：build_c.bat 一键重建
+_reuse/dist/*.exe
+_reuse/dist/*.obj
+_reuse/dist/*.pdb
+_reuse/dist/*.ilk
+
+# 一次性探索脚本的运行日志
+*.log
+
+# 参考项目的权重（可由 onnx/ 里已入库的 ONNX 重新导出，见 export_onnx.py）
+_reuse/clpr/**/weights/*.pt
+_reuse/clpr/**/weights/*.pth
+
+# 系统与编辑器
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
