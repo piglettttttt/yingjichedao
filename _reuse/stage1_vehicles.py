@@ -155,6 +155,15 @@ def main():
     step = max(1, int(round(vfps / a.fps)))
     print("分析帧 %d..%d，每 %d 帧取 1（≈%.1f fps）" % (f0, f1, step, vfps / step))
 
+    if not os.path.exists(a.weights):
+        # 必须在这里拦住：ultralytics 找不到权重时会**静默联网下载**到当前目录，
+        # 于是「路径写错」表现为「多了一个权重文件」而不是报错。本机 github 直连不通，
+        # 离线环境下更是会卡住或超时，所以宁可立刻失败。
+        raise SystemExit(
+            "找不到权重文件：%s\n"
+            "（不要依赖 ultralytics 自动下载：它会静默下载到当前目录，"
+            "既掩盖了路径错误又留下重复文件）" % a.weights)
+
     model = YOLO(a.weights)
     cap.set(cv2.CAP_PROP_POS_FRAMES, f0)
     os.makedirs(os.path.dirname(os.path.abspath(a.out)) or ".", exist_ok=True)

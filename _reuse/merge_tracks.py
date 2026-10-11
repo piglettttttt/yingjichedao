@@ -154,6 +154,49 @@ def merge(items, track_index, gap_max=3.0, dist_max=1.2, time_tol_frames=8):
     return items
 
 
+def check_merge_then_pick_frames():
+    """归并后必须用**合并的**候选池重挑证据帧。
+
+    真实场景：同一辆车被拆成两条轨迹，各自的候选都很稀；合并后候选才够，
+    也才可能凑出「最早附近 / 最晚附近」两张。若沿用归并前各子轨迹的
+    best_frame，挑出来的帧就会是错的（甚至只有一张）。
+    """
+    def cand(t, frame, conf, w=80, h=20):
+        return {"t": t, "frame": frame, "conf": conf,
+                "plate_box": [0, 0, w, h], "text": "粤A1"}
+
+    def item(tid, t0, t1, cands, plate="粤A1G0V91"):
+        return {"src": [tid], "t_first": t0, "t_last": t1, "n_frames": len(cands),
+                "plate": plate, "plate_conf": 0.9, "status": "SUSPECT",
+                "reason": "test", "max_overlap": 1.0, "cands": cands,
+                "best_frame": None, "best_box": None, "texts": Counter(),
+                "early_frame": None, "early_box": None,
+                "late_frame": None, "late_box": None}
+
+    # 两条轨迹：车牌一致、时间相接、位置相同 → 应合并
+    idx = {0: {"boxes": [(0, [(100, 100, 200, 160)])]},
+           1: {"boxes": [(20, [(100, 100, 200, 160)])]}}
+    # 每条给 4 帧：首末帧按规则不许用，中间才够挑（帧少了挑不出来是正常的）
+    a = item(0, 0.0, 2.0, [cand(0.4, 10, 0.8), cand(0.5, 20, 0.95),
+                           cand(1.0, 30, 0.99), cand(1.4, 40, 0.8)])
+    b = item(1, 2.5, 6.0, [cand(3.0, 100, 0.7), cand(4.0, 140, 0.6),
+                           cand(4.6, 160, 0.65), cand(5.0, 180, 0.6)])
+    merged = merge([a, b], idx, gap_max=3.0, dist_max=1.5)
+    assert len(merged) == 1, "相邻同车牌同位置应合并，得 %d 条" % len(merged)
+    m = merged[0]
+    # 归并后按同一规则重挑（与主流程共用 pipeline_v2.pick_evidence_frames）
+    from pipeline_v2 import pick_evidence_frames
+    ev = pick_evidence_frames(m["cands"])
+    assert ev["best"]["frame"] == 30, "原图仍应取置信最高"
+    got = [x["frame"] for x in (ev["early"], ev["best"], ev["late"]) if x]
+    assert len(set(got)) == len(got), "三张必须来自不同帧：%s" % (got,)
+    frames = sorted(c["frame"] for c in m["cands"])
+    assert frames[0] not in got and frames[-1] not in got, \
+        "绝对首/末帧不允许作为证据帧：%s（候选帧号 %s）" % (got, frames)
+    assert m["t_last"] == 6.0, "归并后时间范围应覆盖两条轨迹"
+    print("  [PASS] merge 后用合并候选池重挑证据帧")
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--result", required=True)
@@ -185,6 +228,9 @@ def main():
             "max_overlap": c.get("max_overlap", 0.0),
             "cands": c.get("cands") or [],
             "best_frame": c.get("best_frame"), "best_box": c.get("best_box"),
+            # 三张证据帧（v0.3.0）：随案例一起带走，归并后会按合并候选池重算
+            "early_frame": c.get("early_frame"), "early_box": c.get("early_box"),
+            "late_frame": c.get("late_frame"), "late_box": c.get("late_box"),
             "texts": Counter(c.get("texts") or {}),
         })
     merged = merge(items, track_index, gap_max=a.gap_max, dist_max=a.dist_max,
@@ -207,9 +253,21 @@ def main():
             status, reason = m["status"], m["reason"]
         m["plate"], m["plate_conf"], m["status"], m["reason"] = plate, conf, status, reason
         m["texts"] = dict(cnt.most_common(6))
-        print("   案例%d  %6.2f - %6.2f s  (%2d帧)  合并轨迹%-20s → %-12s 【%s】"
+        # 归并后候选池变了：三张证据帧都要按同一规则重算。
+        # 用主流程的 pick_evidence_frames，避免两处规则各写一遍而走偏。
+        from pipeline_v2 import pick_evidence_frames
+        ev = pick_evidence_frames(m["cands"])
+        m["best_frame"] = ev["best"]["frame"] if ev["best"] else None
+        m["best_box"] = ev["best"]["plate_box"] if ev["best"] else None
+        m["early_frame"] = ev["early"]["frame"] if ev["early"] else None
+        m["early_box"] = ev["early"]["plate_box"] if ev["early"] else None
+        m["late_frame"] = ev["late"]["frame"] if ev["late"] else None
+        m["late_box"] = ev["late"]["plate_box"] if ev["late"] else None
+        m["ev_note"] = ev["note"]
+        n_ev = len([x for x in (ev["early"], ev["best"], ev["late"]) if x])
+        print("   案例%d  %6.2f - %6.2f s  (%2d帧)  合并轨迹%-20s → %-12s 【%s】 证据图%d张"
               % (i, m["t_first"], m["t_last"], m["n_frames"], str(m["src"]),
-                 plate or "(未识别)", status))
+                 plate or "(未识别)", status, n_ev))
 
     out = dict(d)
     out["results"] = merged

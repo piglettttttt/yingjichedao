@@ -97,6 +97,21 @@ typedef struct {
     wchar_t image[STR];
     wchar_t overlap[STR];
     wchar_t user[STR];
+    /*
+     * Evidence materials, all optional (a CSV with these columns missing still
+     * loads and simply shows fewer frames). The first step prepares them; this
+     * program only copies what the operator confirmed:
+     *   evDir      - per-case folder under the evidence-images folder that holds
+     *                the three frames
+     *   evName[3]  - the three fixed file names inside it
+     *                (highest-confidence frame / earliest-nearby / latest-nearby)
+     *   evSec[2]   - in-video time of the 2nd and 3rd frame, shown under them
+     */
+    wchar_t evDir[STR];
+    wchar_t evName[3][STR];
+    wchar_t evSec[2][STR];
+    /* filled while the report is written */
+    int evCopied[3];
     int st;
 } Case;
 
@@ -110,6 +125,7 @@ static HFONT g_fHero, g_fField;
 static Case g_cases[MAXC];
 static int g_n, g_idx;
 static wchar_t g_folder[MAX_PATH * 2];
+static int g_nEvCopied;   /* evidence-frame copies for the done box */
 
 /* screen: 0 = entry, 1 = review, 2 = "violation details" prompt */
 static int g_screen = 0;
@@ -510,6 +526,19 @@ static const wchar_t *COL_DUR = L"\u51FA\u73B0\u65F6\u957F_\u79D2";
 static const wchar_t *COL_FR = L"\u5E27\u6570";
 static const wchar_t *COL_IMG = L"\u8BC1\u636E\u56FE";
 static const wchar_t *COL_OV = L"\u5E94\u6025\u8F66\u9053\u91CD\u53E0";
+/*
+ * v0.3.0 - evidence materials prepared by the first step. Optional: read by
+ * NAME, so a CSV produced before this (or one missing a column) still loads and
+ * simply shows fewer evidence frames.
+ *   COL_IMGDIR - per-case folder under the evidence-images folder
+ *   COL_IMG1/2/3 - the three fixed file names inside that folder
+ */
+static const wchar_t *COL_IMGDIR = L"\u8BC1\u636E\u76EE\u5F55";
+static const wchar_t *COL_IMG1 = L"\u8BC1\u636E\u56FE1";
+static const wchar_t *COL_IMG2 = L"\u8BC1\u636E\u56FE2";
+static const wchar_t *COL_FR2 = L"\u8BC1\u636E\u56FE2_\u65F6\u523B_\u79D2";
+static const wchar_t *COL_IMG3 = L"\u8BC1\u636E\u56FE3";
+static const wchar_t *COL_FR3 = L"\u8BC1\u636E\u56FE3_\u65F6\u523B_\u79D2";
 
 static int load_cases(const wchar_t *folder)
 {
@@ -537,6 +566,8 @@ static int load_cases(const wchar_t *folder)
     wchar_t hdr[MAXCOL][STR];
     int nh = -1, in_det = -1, in_conf = -1, in_ts = -1, in_end = -1;
     int in_dur = -1, in_fr = -1, in_img = -1, in_ov = -1;
+    int in_imgdir = -1, in_img1 = -1, in_img2 = -1, in_fr2 = -1;
+    int in_img3 = -1, in_fr3 = -1;
     g_n = 0;
 
     char *line = start;
@@ -561,6 +592,12 @@ static int load_cases(const wchar_t *folder)
                 in_fr = find_col(hdr, nh, COL_FR);
                 in_img = find_col(hdr, nh, COL_IMG);
                 in_ov = find_col(hdr, nh, COL_OV);
+                in_imgdir = find_col(hdr, nh, COL_IMGDIR);
+                in_img1 = find_col(hdr, nh, COL_IMG1);
+                in_img2 = find_col(hdr, nh, COL_IMG2);
+                in_fr2 = find_col(hdr, nh, COL_FR2);
+                in_img3 = find_col(hdr, nh, COL_IMG3);
+                in_fr3 = find_col(hdr, nh, COL_FR3);
             } else if (g_n < MAXC) {
                 Case *c = &g_cases[g_n];
                 memset(c, 0, sizeof(*c));
@@ -572,6 +609,28 @@ static int load_cases(const wchar_t *folder)
                 if (in_fr >= 0 && in_fr < nc) wcsncpy(c->frames, cols[in_fr], STR - 1);
                 if (in_img >= 0 && in_img < nc) wcsncpy(c->image, cols[in_img], STR - 1);
                 if (in_ov >= 0 && in_ov < nc) wcsncpy(c->overlap, cols[in_ov], STR - 1);
+                if (in_img2 >= 0 && in_img2 < nc)
+                    wcsncpy(c->evName[1], cols[in_img2], STR - 1);
+                if (in_fr2 >= 0 && in_fr2 < nc)
+                    wcsncpy(c->evSec[0], cols[in_fr2], STR - 1);
+                if (in_img3 >= 0 && in_img3 < nc)
+                    wcsncpy(c->evName[2], cols[in_img3], STR - 1);
+                if (in_fr3 >= 0 && in_fr3 < nc)
+                    wcsncpy(c->evSec[1], cols[in_fr3], STR - 1);
+                if (in_imgdir >= 0 && in_imgdir < nc)
+                    wcsncpy(c->evDir, cols[in_imgdir], STR - 1);
+                /*
+                 * The first frame's file name and the folder come from the CSV.
+                 * Only when the whole COL_IMG1 column is MISSING (a CSV written
+                 * before v0.3.0) fall back to the long-standing default; an
+                 * empty cell means the first step did not write that frame, and
+                 * inventing a name for it would just copy nothing while looking
+                 * like the material was complete.
+                 */
+                if (in_img1 >= 0 && in_img1 < nc)
+                    wcsncpy(c->evName[0], cols[in_img1], STR - 1);
+                else
+                    wcscpy(c->evName[0], L"\u539F\u56FE.jpg");
                 wcsncpy(c->user, c->detected, STR - 1);
                 c->st = ST_PENDING;
                 ++g_n;
@@ -1126,21 +1185,129 @@ static void fputs_html_escaped(FILE *fp, const wchar_t *s)
     }
 }
 
-/* locate the unannotated frame; 1 = plain, 0 = annotated fallback, -1 = none */
-static int find_plain_image(const wchar_t *img_name, wchar_t *out)
+static int starts_with(const wchar_t *s, const wchar_t *pfx)
+{
+    if (!s || !pfx) return 0;
+    return wcsncmp(s, pfx, wcslen(pfx)) == 0;
+}
+
+/* byte copy; returns 1 on success. No CRT "safe" variant is available here
+ * (this is plain Win32 C++), and the files are a few hundred KB at most. */
+static int copy_file(const wchar_t *src, const wchar_t *dst)
+{
+    if (!src || !dst || !src[0] || !dst[0]) return 0;
+    FILE *in = _wfopen(src, L"rb");
+    if (!in) return 0;
+    FILE *out = _wfopen(dst, L"wb");
+    if (!out) { fclose(in); return 0; }
+    static char buf[65536];
+    size_t rd;
+    int ok = 1;
+    while ((rd = fread(buf, 1, sizeof(buf), in)) > 0) {
+        if (fwrite(buf, 1, rd, out) != rd) { ok = 0; break; }
+    }
+    fclose(in);
+    fclose(out);
+    return ok;
+}
+
+/*
+ * ---------------- evidence packaging (v0.3.0) ----------------
+ *
+ * After the operator presses "generate report", every evidence frame of one
+ * confirmed case is filed into that case's plate-named folder:
+ *
+ *     <plate>/
+ *       01_<primary>.jpg    highest-confidence frame (report body uses this)
+ *       01_<frame2>.jpg     earliest-nearby frame
+ *       01_<frame3>.jpg     latest-nearby frame
+ *
+ * (the Chinese file-name parts are built with \u escapes below, since this file
+ *  must stay 100% ASCII - see the note at the top of it)
+ *
+ * Design notes:
+ *   - the frames are COPIED, not moved: the review screen and a re-generated
+ *     report both read the "evidence images / originals" sub-folder of the
+ *     initial folder, so moving would break them;
+ *   - WHICH frames to use is decided in Python (pipeline_v2 / merge_tracks), not
+ *     here: that needs the whole track's candidate pool. This side only copies
+ *     the frames the CSV names.
+ *   - a missing frame only costs that one file; the counts are reported back.
+ */
+
+/*
+ * File every evidence frame of one confirmed case into its plate-named folder.
+ * Must be called after the CSV loop, which creates the folder.
+ */
+/*
+ * File the evidence frames of one confirmed case into its plate-named folder.
+ *
+ * This side does NO choosing and NO guessing: the first step wrote the three
+ * frames into one per-case folder and the CSV names both the folder and the
+ * files. All that is left is "the operator pressed yes for this plate, so copy
+ * its frames over under descriptive names".
+ *
+ * Returns the number of frames filed.
+ */
+static int package_case(Case *c, const wchar_t *outdir, int idx)
+{
+    wchar_t pdir[MAX_PATH * 2];
+    _snwprintf(pdir, MAX_PATH * 2 - 1, L"%s\\%s", outdir, c->user);
+    if (GetFileAttributesW(pdir) == INVALID_FILE_ATTRIBUTES &&
+        !CreateDirectoryW(pdir, NULL))
+        return 0;
+
+    static const wchar_t *out_suffix[3] = {
+        L"\u539F\u56FE.jpg",        /* primary */
+        L"\u8BC1\u636E\u5E272.jpg", /* frame 2 */
+        L"\u8BC1\u636E\u5E273.jpg"  /* frame 3 */
+    };
+
+    int filed = 0;
+    for (int k = 0; k < 3; ++k) {
+        if (!c->evName[k][0]) continue;
+        wchar_t src[MAX_PATH * 2], dst[MAX_PATH * 2];
+        if (c->evDir[0]) {
+            _snwprintf(src, MAX_PATH * 2 - 1,
+                       L"%s\\\u8BC1\u636E\u56FE\\%s\\%s",
+                       g_folder, c->evDir, c->evName[k]);
+        } else {
+            /* older CSV: no per-case folder, frames sat next to the review images */
+            src[0] = 0;
+        }
+        if (!src[0] || !file_exists(src)) continue;
+        _snwprintf(dst, MAX_PATH * 2 - 1, L"%s\\%02d_%s", pdir, idx, out_suffix[k]);
+        if (copy_file(src, dst)) {
+            ++c->evCopied[k];
+            ++filed;
+        }
+    }
+    return filed;
+}
+
+/*
+ * Locate one evidence frame written by the first step, inside a per-case folder.
+ * 1 = plain evidence frame found, 0 = only the ROI-annotated review image was
+ * found (the report then says so), -1 = nothing at all.
+ */
+static int find_evidence_image(const wchar_t *dir, const wchar_t *img_name,
+                               wchar_t *out, int cch)
 {
     wchar_t p[MAX_PATH * 2];
-    _snwprintf(p, MAX_PATH * 2 - 1, L"%s\\\u8BC1\u636E\u56FE\\\u539F\u56FE\\%s",
-               g_folder, img_name);
-    if (file_exists(p)) { wcscpy(out, p); return 1; }
+    if (dir && dir[0]) {
+        _snwprintf(p, MAX_PATH * 2 - 1, L"%s\\\u8BC1\u636E\u56FE\\%s\\%s",
+                   g_folder, dir, img_name);
+        if (file_exists(p)) { wcsncpy(out, p, (size_t)cch - 1); out[cch - 1] = 0; return 1; }
+    }
+    /* fall back to the annotated review image of the same number */
     _snwprintf(p, MAX_PATH * 2 - 1, L"%s\\\u8BC1\u636E\u56FE\\%s",
                g_folder, img_name);
-    if (file_exists(p)) { wcscpy(out, p); return 0; }
+    if (file_exists(p)) { wcsncpy(out, p, (size_t)cch - 1); out[cch - 1] = 0; return 0; }
     out[0] = 0;
     return -1;
 }
 
-static void write_html_report(const wchar_t *path)
+static void write_html_report(const wchar_t *path, int linked)
 {
     FILE *fp = _wfopen(path, L"wb");
     if (!fp) return;
@@ -1291,36 +1458,105 @@ static void write_html_report(const wchar_t *path)
         fputws_utf8(fp, buf);
         fputs("</table>\n", fp);
 
-        /* evidence: the UNANNOTATED frame is preferred */
-        wchar_t img[MAX_PATH * 2];
-        int kind = find_plain_image(c->image, img);
-        if (kind >= 0) {
-            size_t len = 0;
-            unsigned char *raw = read_file(img, &len);
-            if (raw) {
-                char *b64 = NULL;
-                b64_encode(raw, len, &b64);
-                free(raw);
-                if (b64) {
+        /*
+         * The three evidence frames the first step picked and wrote:
+         *   1 primary  = highest-confidence frame (report body evidence)
+         *   2 earliest = the earliest-nearby usable frame
+         *   3 latest   = the latest-nearby usable frame
+         * The CSV names all three; a case with too few usable frames simply has
+         * fewer, and that is said in the notes rather than padded out with a
+         * duplicate picture.
+         */
+        {
+            static const wchar_t *alt_alt[3] = { L"\u8BC1\u636E\u56FE",
+                                                 L"\u8BC1\u636E\u56FE2",
+                                                 L"\u8BC1\u636E\u56FE3" };
+            static const wchar_t *alt_lbl[3] = {
+                L"\u539F\u56FE\uFF08\u7F6E\u4FE1\u5EA6\u6700\u9AD8\u5E27\uFF09",
+                L"\u8BC1\u636E\u56FE 2\uFF08\u6700\u65E9\u9644\u8FD1\u5E27\uFF09",
+                L"\u8BC1\u636E\u56FE 3\uFF08\u6700\u665A\u9644\u8FD1\u5E27\uFF09" };
+            /* the names the frames were filed under, used by the linked variant */
+            static const wchar_t *out_suffix_link[3] = {
+                L"%02d_\u539F\u56FE.jpg",
+                L"%02d_\u8BC1\u636E\u5E272.jpg",
+                L"%02d_\u8BC1\u636E\u5E273.jpg" };
+            const wchar_t *secs[3];
+            secs[0] = NULL;
+            secs[1] = c->evSec[0];
+            secs[2] = c->evSec[1];
+
+            int got = 0;
+            for (int k = 0; k < 3; ++k) {
+                if (!c->evName[k][0]) continue;
+                wchar_t fpath[MAX_PATH * 2];
+                int kind = find_evidence_image(c->evDir, c->evName[k], fpath,
+                                              (int)ARRAYSZ(fpath));
+                if (kind < 0) continue;
+
+                fputs("<div class=\"k\" style=\"margin-top:24px;\">", fp);
+                fputws_utf8(fp, alt_lbl[k]);
+                fputs("</div>\n", fp);
+                if (linked) {
+                    /*
+                     * Light-weight variant: link the file instead of inlining it,
+                     * so this report is a few KB. Only useful next to the
+                     * evidence folders (which is where it is written).
+                     */
                     fputs("<img alt=\"", fp);
-                    fputws_utf8(fp, L"\u8BC1\u636E\u56FE");
+                    fputws_utf8(fp, alt_alt[k]);
+                    fputs("\" src=\"", fp);
+                    fputws_utf8(fp, c->user);
+                    fputs("/", fp);
+                    wchar_t link_name[STR];
+                    _snwprintf(link_name, STR - 1, out_suffix_link[k], i + 1);
+                    fputws_utf8(fp, link_name);
+                    fputs("\">\n", fp);
+                } else {
+                    size_t l = 0;
+                    unsigned char *raw = read_file(fpath, &l);
+                    if (!raw) continue;
+                    char *b64 = NULL;
+                    b64_encode(raw, l, &b64);
+                    free(raw);
+                    if (!b64) continue;
+                    fputs("<img alt=\"", fp);
+                    fputws_utf8(fp, alt_alt[k]);
                     fputs("\" src=\"data:image/jpeg;base64,", fp);
                     fwrite(b64, 1, strlen(b64), fp);
                     fputs("\">\n", fp);
                     free(b64);
                 }
+                ++got;
+
+                if (secs[k] && secs[k][0]) {
+                    fputs("<p class=\"note\">", fp);
+                    fputws_utf8(fp, L"\u8BE5\u5E27\u5728\u89C6\u9891\u5185\u7B2C ");
+                    fputs_html_escaped(fp, secs[k]);
+                    fputws_utf8(fp, L" \u79D2");
+                    fputs("</p>\n", fp);
+                } else if (kind == 0) {
+                    fputs("<p class=\"note\">", fp);
+                    fputws_utf8(fp, L"\u6CE8\uFF1A\u672A\u627E\u5230\u672A\u6807\u6CE8"
+                                    L"\u539F\u56FE\uFF0C\u6B64\u5904\u4F7F\u7528\u542B "
+                                    L"ROI \u6807\u6CE8\u7684\u56FE\u3002");
+                    fputs("</p>\n", fp);
+                }
             }
-            if (kind == 0) {
+            if (got == 0) {
                 fputs("<p class=\"note\">", fp);
-                fputws_utf8(fp, L"\u6CE8\uFF1A\u672A\u627E\u5230\u672A\u6807\u6CE8"
-                                L"\u539F\u56FE\uFF0C\u6B64\u5904\u4F7F\u7528\u542B "
-                                L"ROI \u6807\u6CE8\u7684\u56FE\u3002");
+                fputws_utf8(fp, L"\u672A\u627E\u5230\u8BC1\u636E\u56FE");
+                fputs("</p>\n", fp);
+            } else if (got < 3) {
+                wchar_t mark[128];
+                _snwprintf(mark, ARRAYSZ(mark) - 1,
+                           L"\u53EA\u6709 %d \u5F20\u8BC1\u636E\u56FE"
+                           L"\uFF08\u53EF\u8FA8\u8BC6\u5E27\u4E0D\u591F"
+                           L"\uFF0C\u4E0D\u62FF\u540C\u4E00\u5E27\u51D1\u6570\uFF09",
+                           got);
+                fputs("<p class=\"note\">", fp);
+                fputws_utf8(fp, mark);
                 fputs("</p>\n", fp);
             }
-        } else {
-            fputs("<p class=\"note\">", fp);
-            fputws_utf8(fp, L"\u672A\u627E\u5230\u8BC1\u636E\u56FE");
-            fputs("</p>\n", fp);
         }
         fputs("</div>\n", fp);
     }
@@ -1551,13 +1787,30 @@ static void write_report_now(void)
                L"%s\\\u4EBA\u5DE5\u5BA1\u6838\u7ED3\u679C", g_folder);
     CreateDirectoryW(outdir, NULL);
 
+    /*
+     * Step 1: file the evidence frames into each plate-named folder - the
+     * highest-confidence frame plus the earliest-nearby and latest-nearby ones.
+     * Done before the CSV/HTML so both can carry the same set and a folder
+     * always exists for its plate.
+     *
+     * Best-effort: a frame that is missing only costs that one file and is
+     * counted, so the report still gets produced.
+     */
+    g_nEvCopied = 0;
+    for (int i = 0; i < g_n; ++i) {
+        Case *c = &g_cases[i];
+        if (c->st != ST_YES) continue;
+        package_case(c, outdir, i + 1);
+        g_nEvCopied += c->evCopied[0] + c->evCopied[1] + c->evCopied[2];
+    }
+
     wchar_t csvp[MAX_PATH * 2];
     _snwprintf(csvp, MAX_PATH * 2 - 1,
                L"%s\\\u4EBA\u5DE5\u5BA1\u6838\u7ED3\u679C.csv", outdir);
     FILE *fp = open_utf8_out(csvp, 1);
     int nyes = 0, nmade = 0, nfail = 0;
     if (fp) {
-        wchar_t hdr[11][STR];
+        wchar_t hdr[15][STR];
         wcscpy(hdr[0], L"\u5E8F\u53F7");
         wcscpy(hdr[1], L"\u65F6\u95F4_\u8D77");
         wcscpy(hdr[2], L"\u65F6\u95F4_\u6B62");
@@ -1569,13 +1822,18 @@ static void write_report_now(void)
         wcscpy(hdr[8], L"\u8BC1\u636E\u56FE");
         wcscpy(hdr[9], L"\u7528\u6237\u786E\u8BA4");
         wcscpy(hdr[10], L"\u786E\u8BA4\u7ED3\u679C");
-        write_utf8_line(fp, hdr, 11);
+        /* extra frames, as the first step named them */
+        wcscpy(hdr[11], COL_IMGDIR);
+        wcscpy(hdr[12], COL_IMG1);
+        wcscpy(hdr[13], COL_IMG2);
+        wcscpy(hdr[14], COL_IMG3);
+        write_utf8_line(fp, hdr, 15);
 
         for (int i = 0; i < g_n; ++i) {
             Case *c = &g_cases[i];
             if (c->st != ST_YES) continue;
             ++nyes;
-            wchar_t row[11][STR];
+            wchar_t row[15][STR];
             _snwprintf(row[0], STR - 1, L"%d", i + 1);
             wcsncpy(row[1], c->ts, STR - 1);
             wcsncpy(row[2], c->tsEnd, STR - 1);
@@ -1587,7 +1845,12 @@ static void write_report_now(void)
             wcsncpy(row[8], c->image, STR - 1);
             wcsncpy(row[9], c->user, STR - 1);
             wcscpy(row[10], L"\u662F");
-            write_utf8_line(fp, row, 11);
+            /* the materials list, copied as-is from the first step's CSV */
+            wcsncpy(row[11], c->evDir, STR - 1);
+            wcsncpy(row[12], c->evName[0], STR - 1);
+            wcsncpy(row[13], c->evName[1], STR - 1);
+            wcsncpy(row[14], c->evName[2], STR - 1);
+            write_utf8_line(fp, row, 15);
 
             wchar_t cd[MAX_PATH * 2];
             _snwprintf(cd, MAX_PATH * 2 - 1, L"%s\\%s", outdir, c->user);
@@ -1598,17 +1861,25 @@ static void write_report_now(void)
         }
         fclose(fp);
     }
+
     wchar_t htmlp[MAX_PATH * 2];
     _snwprintf(htmlp, MAX_PATH * 2 - 1,
                L"%s\\\u8FDD\u7AE0\u68C0\u6D4B\u62A5\u544A.html", outdir);
-    write_html_report(htmlp);
-    wchar_t msg[1400];
-    _snwprintf(msg, 1399,
+    write_html_report(htmlp, 0);            /* self-contained (base64) */
+    wchar_t htmlq[MAX_PATH * 2];
+    _snwprintf(htmlq, MAX_PATH * 2 - 1,
+               L"%s\\\u8FDD\u7AE0\u68C0\u6D4B\u62A5\u544A_\u8F7B\u91CF\u7248.html",
+               outdir);
+    write_html_report(htmlq, 1);            /* links the files, a few KB */
+    wchar_t msg[1600];
+    _snwprintf(msg, 1599,
         L"\u5DF2\u751F\u6210\u62A5\u544A\uFF1A\n%s\n\n"
         L"\u786E\u8BA4\u300C\u662F\u300D\u7684\u6848\u4F8B\uFF1A%d \u6761\n"
-        L"\u65B0\u5EFA\u8F66\u724C\u6587\u4EF6\u5939\uFF1A%d \u4E2A%s",
-        csvp, nyes, nmade,
-        nfail ? L"\n\uFF08\u90E8\u5206\u6587\u4EF6\u5939\u521B\u5EFA\u5931\u8D25\uFF09" : L"");
+        L"\u65B0\u5EFA\u8F66\u724C\u6587\u4EF6\u5939\uFF1A%d \u4E2A\n"
+        L"\u5F52\u6863\u8BC1\u636E\u5E27\uFF1A%d \u5F20%s",
+        csvp, nyes, nmade, g_nEvCopied,
+        nfail ? L"\n\uFF08\u90E8\u5206\u8F66\u724C\u6587\u4EF6\u5939\u521B\u5EFA\u5931\u8D25\uFF09"
+              : L"");
     MessageBoxW(g_hwnd, msg, L"\u5B8C\u6210\u62A5\u544A", MB_OK | MB_ICONINFORMATION);
     PostQuitMessage(0);
 }

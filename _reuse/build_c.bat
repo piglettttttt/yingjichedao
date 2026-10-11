@@ -35,14 +35,14 @@ rem          test sources carry Chinese comments and assertion labels.
 set CFLAGS=/nologo /O2 /W3 /utf-8 /DUNICODE /D_UNICODE /EHsc /D_CRT_SECURE_NO_WARNINGS
 set GUI_LIBS=/link /SUBSYSTEM:WINDOWS user32.lib gdi32.lib gdiplus.lib comdlg32.lib shell32.lib ole32.lib
 
-echo [1/3] compiling PlateReview.cpp ...
+echo [1/4] compiling PlateReview.cpp ...
 cl %CFLAGS% /Fe:"dist\PlateReview.exe" PlateReview.cpp %GUI_LIBS%
 if errorlevel 1 (
   echo [ERROR] build failed
   exit /b 1
 )
 
-echo [2/3] compiling test_logic.cpp ...
+echo [2/4] compiling test_logic.cpp ...
 cl %CFLAGS% /Fe:"dist\test_logic.exe" test_logic.cpp ^
    /link /SUBSYSTEM:CONSOLE user32.lib gdi32.lib ole32.lib shell32.lib
 if errorlevel 1 (
@@ -50,8 +50,16 @@ if errorlevel 1 (
   exit /b 1
 )
 
-echo [3/3] compiling test_report.cpp ...
+echo [3/4] compiling test_report.cpp ...
 cl %CFLAGS% /Fe:"dist\test_report.exe" test_report.cpp ^
+   /link /SUBSYSTEM:CONSOLE user32.lib gdi32.lib gdiplus.lib comdlg32.lib shell32.lib ole32.lib
+if errorlevel 1 (
+  echo [ERROR] test build failed
+  exit /b 1
+)
+
+echo [4/4] compiling test_package.cpp ...
+cl %CFLAGS% /Fe:"dist\test_package.exe" test_package.cpp ^
    /link /SUBSYSTEM:CONSOLE user32.lib gdi32.lib gdiplus.lib comdlg32.lib shell32.lib ole32.lib
 if errorlevel 1 (
   echo [ERROR] test build failed
@@ -62,6 +70,7 @@ rem clean intermediate files
 if exist "PlateReview.obj" del /q "PlateReview.obj"
 if exist "test_logic.obj"  del /q "test_logic.obj"
 if exist "test_report.obj" del /q "test_report.obj"
+if exist "test_package.obj" del /q "test_package.obj"
 
 echo.
 echo Build finished. Output in dist\ :

@@ -32,6 +32,10 @@ BASE_TS = datetime.datetime(2023, 3, 4, 15, 38, 2)
 #   video = 视频内播放时间（无叠字视频用这个）
 TIME_MODE = "clock"
 
+# 每个案例的证据帧文件名（固定名，审核程序照抄即可，不需要判断内容）。
+# 顺序 = 报告里的展示顺序：原图（置信最高帧）→ 最早附近帧 → 最晚附近帧。
+EVIDENCE_NAMES = ("原图.jpg", "证据帧2.jpg", "证据帧3.jpg")
+
 
 def fmt_video_time(sec):
     """视频内播放时间：MM:SS.s（超过一小时则 H:MM:SS.s）。"""
@@ -84,6 +88,21 @@ def check_outdir_ascii(path):
     print("  [PASS] 初成果目录为纯 ASCII")
 
 
+def parse_base_ts(s):
+    """解析记录仪基准时间。格式错误时给出明确提示，而不是抛 traceback。
+
+    踩坑：曾把 Unix 时间戳（1770000000）当作 --base-ts 传进来，
+    报错发生在**流水线最后一步**，前面十几分钟的计算全白跑。
+    """
+    try:
+        return datetime.datetime.strptime(str(s), "%Y-%m-%d %H:%M:%S")
+    except ValueError:
+        raise SystemExit(
+            "[错误] --base-ts 格式不对：%r\n"
+            "       必须是 \"YYYY-MM-DD HH:MM:SS\"，例如 \"2023-03-04 15:38:02\""
+            % (s,))
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--result", required=True,
@@ -102,7 +121,7 @@ def main():
     global BASE_TS, TIME_MODE
     TIME_MODE = a.time_mode
     if a.base_ts:
-        BASE_TS = datetime.datetime.strptime(a.base_ts, "%Y-%m-%d %H:%M:%S")
+        BASE_TS = parse_base_ts(a.base_ts)
     elif TIME_MODE == "clock":
         print("⚠ 未给 --base-ts，沿用内置基准时间 %s。换视频必须重新给，"
               "否则时间列是错的（该基准只对内置的第一个测试视频成立）"
@@ -139,6 +158,7 @@ def main():
         cap.set(cv2.CAP_PROP_POS_FRAMES, f0)
         ok, frame = cap.read()
         img_name = ""
+        early_sec = late_sec = ""
         if ok:
             vis = frame.copy()
             ov = vis.copy()
@@ -211,17 +231,54 @@ def main():
             if not wrote:
                 print("   !! 证据图写入失败: %s" % img_name)
 
-            # 同时存一份**纯原帧**（零标注），供"生成报告"作为证据使用。
-            # 审核界面那张带 ROI 与放大插图是为了方便人工判断；
-            # 报告是要交出去的材料，证据必须是未经加工的原始画面。
+            # 三张**纯原帧**（零标注）放进本案例自己的子目录：
+            #     证据图\案例NN_车牌\原图.jpg / 证据帧2.jpg / 证据帧3.jpg
             #
-            # 放在 证据图/ 的**子目录**里：审核程序从 证据图/<文件> 取图，
-            # 子目录不会被误取，两边互不干扰。
-            plain_dir = os.path.join(evd, "原图")
-            os.makedirs(plain_dir, exist_ok=True)
-            wrote_p = imwrite_unicode(os.path.join(plain_dir, img_name), frame, 95)
-            if not wrote_p:
-                print("   !! 原图写入失败: %s" % img_name)
+            # 分工（这是全部「挑帧」逻辑所在）：
+            #   - 挑哪三帧，在流水线里用整条轨迹的候选定好（pipeline_v2 / merge_tracks）；
+            #   - 这里只按帧号把图取出来、按固定文件名落盘；
+            #   - 审核程序不再做任何判断，只把**确认车辆**的那个子目录整个复制到成果目录。
+            # 文件名固定（不带时间戳），审核程序才能不看内容就照抄；
+            # 带 ROI 与放大插图的那张仍留在 证据图\ 下，仅供人眼判断，不进报告。
+            #
+            # CSV 里写的名字**必须**是磁盘上真实存在的：审核程序照名字取图，
+            # 写了不存在的文件只是白复制一次（更糟的是让人以为材料是齐的）。
+            safe = (r["plate"] or "UNREADABLE").replace("/", "_")
+            case_dir_name = "案例%02d_%s" % (i, safe)
+            case_dir = os.path.join(evd, case_dir_name)
+            os.makedirs(case_dir, exist_ok=True)
+            ev_written = ["", "", ""]
+
+            if imwrite_unicode(os.path.join(case_dir, EVIDENCE_NAMES[0]), frame, 95):
+                ev_written[0] = EVIDENCE_NAMES[0]
+            else:
+                print("   !! 原图写入失败: %s" % case_dir_name)
+
+            # 最早附近帧、最晚附近帧（帧号已在流水线里定好）
+            for slot, key in ((1, "early_frame"), (2, "late_frame")):
+                bfx = r.get(key)
+                if bfx is None:
+                    continue
+                fx = int(bfx)
+                cap.set(cv2.CAP_PROP_POS_FRAMES, fx)
+                okx, frame_x = cap.read()
+                if not okx:
+                    print("   !! 取帧失败（%s 帧%d）" % (key, fx))
+                    continue
+                if not imwrite_unicode(os.path.join(case_dir, EVIDENCE_NAMES[slot]),
+                                       frame_x, 95):
+                    print("   !! 写入失败: %s / %s" % (case_dir_name,
+                                                       EVIDENCE_NAMES[slot]))
+                    continue
+                ev_written[slot] = EVIDENCE_NAMES[slot]
+                if slot == 1:
+                    early_sec = round(fx / fps, 3)
+                else:
+                    late_sec = round(fx / fps, 3)
+            if not ev_written[1]:
+                early_sec = ""
+            if not ev_written[2]:
+                late_sec = ""
         cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
 
         dur = t1 - t0
@@ -242,7 +299,17 @@ def main():
             "状态": r["status"],
             "应急车道重叠": r.get("max_overlap", 0),
             "备注": r["reason"],
+            # 证据图：带 ROI 与放大插图的**审核用**图（仅供人眼判断，不进报告）
             "证据图": img_name,
+            # 材料清单：审核程序照抄这三个文件名 + 目录名，不做任何判断
+            # （v0.3.0 起 C++ 侧全部按列名读取，缺列则自动少一张）
+            "证据目录": case_dir_name,
+            "证据图1": ev_written[0],
+            "证据图2": ev_written[1],
+            "证据图2_时刻_秒": early_sec,
+            "证据图3": ev_written[2],
+            "证据图3_时刻_秒": late_sec,
+            "取帧说明": r.get("ev_note", ""),
         })
     cap.release()
 

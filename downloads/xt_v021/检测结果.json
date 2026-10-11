@@ -3,174 +3,83 @@
   "time_mode": "clock",
   "base_timestamp": "2023-03-04 15:38:02",
   "roi_source": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\roi\\roi_image50.json",
-  "n_vehicles": 10,
+  "n_vehicles": 3,
   "results": [
     {
       "序号": 1,
       "时间_起": "2023-03-04 15:38:02",
-      "时间_止": "2023-03-04 15:38:18",
+      "时间_止": "2023-03-04 15:38:04",
       "时间类型": "记录仪时间",
       "视频内时间_起_秒": 0.0,
-      "视频内时间_止_秒": 16.733,
-      "出现时长_秒": 16.73,
-      "帧数": 290,
+      "视频内时间_止_秒": 2.467,
+      "出现时长_秒": 2.47,
+      "帧数": 75,
       "车牌号": "粤ACH5795",
       "车牌置信度": 0.9998,
       "状态": "CONFIRMED",
       "应急车道重叠": 1.0,
-      "备注": "置信 1.00 且 34 次一致",
-      "证据图": "01_粤ACH5795_2023-03-04_153802.jpg"
+      "备注": "置信 1.00 且 32 次一致",
+      "证据图": "01_粤ACH5795_2023-03-04_153802.jpg",
+      "证据目录": "案例01_粤ACH5795",
+      "证据图1": "原图.jpg",
+      "证据图2": "证据帧2.jpg",
+      "证据图2_时刻_秒": 0.133,
+      "证据图3": "证据帧3.jpg",
+      "证据图3_时刻_秒": 2.4,
+      "取帧说明": "可辨识帧 23 → 最早附近 t=0.13s(帧4) / 原图(置信最高) t=0.47s(帧14) / 最晚附近 t=2.40s(帧72)"
     },
     {
       "序号": 2,
+      "时间_起": "2023-03-04 15:38:02",
+      "时间_止": "2023-03-04 15:38:09",
+      "时间类型": "记录仪时间",
+      "视频内时间_起_秒": 0.0,
+      "视频内时间_止_秒": 7.933,
+      "出现时长_秒": 7.93,
+      "帧数": 96,
+      "车牌号": "粤Q6906T",
+      "车牌置信度": 0.9397,
+      "状态": "SUSPECT",
+      "应急车道重叠": 0.524,
+      "备注": "置信 0.94、1 次（需人工确认）",
+      "证据图": "02_粤Q6906T_2023-03-04_153802.jpg",
+      "证据目录": "案例02_粤Q6906T",
+      "证据图1": "原图.jpg",
+      "证据图2": "",
+      "证据图2_时刻_秒": "",
+      "证据图3": "",
+      "证据图3_时刻_秒": "",
+      "取帧说明": "可辨识帧 2 → 最早附近 无 / 原图(置信最高) t=6.20s(帧186) / 最晚附近 无（帧数不足，只出 1 张，未硬凑）"
+    },
+    {
+      "序号": 3,
       "时间_起": "2023-03-04 15:38:04",
-      "时间_止": "2023-03-04 15:38:11",
+      "时间_止": "2023-03-04 15:38:09",
       "时间类型": "记录仪时间",
       "视频内时间_起_秒": 2.733,
-      "视频内时间_止_秒": 9.867,
-      "出现时长_秒": 7.13,
-      "帧数": 131,
+      "视频内时间_止_秒": 7.933,
+      "出现时长_秒": 5.2,
+      "帧数": 102,
       "车牌号": "粤GD38897",
       "车牌置信度": 0.9994,
       "状态": "CONFIRMED",
       "应急车道重叠": 1.0,
-      "备注": "置信 1.00 且 4 次一致",
-      "证据图": "02_粤GD38897_2023-03-04_153804.jpg"
-    },
-    {
-      "序号": 3,
-      "时间_起": "2023-03-04 15:38:10",
-      "时间_止": "2023-03-04 15:38:13",
-      "时间类型": "记录仪时间",
-      "视频内时间_起_秒": 8.133,
-      "视频内时间_止_秒": 11.067,
-      "出现时长_秒": 2.93,
-      "帧数": 45,
-      "车牌号": "桂A335X0",
-      "车牌置信度": 0.9975,
-      "状态": "CONFIRMED",
-      "应急车道重叠": 1.0,
-      "备注": "置信 1.00 且 3 次一致",
-      "证据图": "03_桂A335X0_2023-03-04_153810.jpg"
-    },
-    {
-      "序号": 4,
-      "时间_起": "2023-03-04 15:38:13",
-      "时间_止": "2023-03-04 15:38:16",
-      "时间类型": "记录仪时间",
-      "视频内时间_起_秒": 11.267,
-      "视频内时间_止_秒": 14.933,
-      "出现时长_秒": 3.67,
-      "帧数": 56,
-      "车牌号": "粤EF01116",
-      "车牌置信度": 0.9705,
-      "状态": "CONFIRMED",
-      "应急车道重叠": 1.0,
-      "备注": "置信 0.97 且 4 次一致",
-      "证据图": "04_粤EF01116_2023-03-04_153813.jpg"
-    },
-    {
-      "序号": 5,
-      "时间_起": "2023-03-04 15:38:17",
-      "时间_止": "2023-03-04 15:38:28",
-      "时间类型": "记录仪时间",
-      "视频内时间_起_秒": 15.2,
-      "视频内时间_止_秒": 26.133,
-      "出现时长_秒": 10.93,
-      "帧数": 166,
-      "车牌号": "粤C29V19",
-      "车牌置信度": 0.9997,
-      "状态": "CONFIRMED",
-      "应急车道重叠": 1.0,
-      "备注": "置信 1.00 且 3 次一致",
-      "证据图": "05_粤C29V19_2023-03-04_153817.jpg"
-    },
-    {
-      "序号": 6,
-      "时间_起": "2023-03-04 15:38:17",
-      "时间_止": "2023-03-04 15:38:18",
-      "时间类型": "记录仪时间",
-      "视频内时间_起_秒": 15.333,
-      "视频内时间_止_秒": 16.8,
-      "出现时长_秒": 1.47,
-      "帧数": 3,
-      "车牌号": "桂K11981",
-      "车牌置信度": 0.9015,
-      "状态": "SUSPECT",
-      "应急车道重叠": 1.0,
-      "备注": "置信 0.90、1 次（需人工确认）",
-      "证据图": "06_桂K11981_2023-03-04_153817.jpg"
-    },
-    {
-      "序号": 7,
-      "时间_起": "2023-03-04 15:38:20",
-      "时间_止": "2023-03-04 15:38:22",
-      "时间类型": "记录仪时间",
-      "视频内时间_起_秒": 18.333,
-      "视频内时间_止_秒": 20.667,
-      "出现时长_秒": 2.33,
-      "帧数": 15,
-      "车牌号": "粤C29V19",
-      "车牌置信度": 0.9991,
-      "状态": "CONFIRMED",
-      "应急车道重叠": 1.0,
-      "备注": "置信 1.00 且 2 次一致",
-      "证据图": "07_粤C29V19_2023-03-04_153820.jpg"
-    },
-    {
-      "序号": 8,
-      "时间_起": "2023-03-04 15:38:25",
-      "时间_止": "2023-03-04 15:38:30",
-      "时间类型": "记录仪时间",
-      "视频内时间_起_秒": 23.133,
-      "视频内时间_止_秒": 28.2,
-      "出现时长_秒": 5.07,
-      "帧数": 77,
-      "车牌号": "桂A950KW",
-      "车牌置信度": 0.9992,
-      "状态": "CONFIRMED",
-      "应急车道重叠": 1.0,
-      "备注": "置信 1.00 且 5 次一致",
-      "证据图": "08_桂A950KW_2023-03-04_153825.jpg"
-    },
-    {
-      "序号": 9,
-      "时间_起": "2023-03-04 15:38:30",
-      "时间_止": "2023-03-04 15:38:31",
-      "时间类型": "记录仪时间",
-      "视频内时间_起_秒": 28.4,
-      "视频内时间_止_秒": 29.933,
-      "出现时长_秒": 1.53,
-      "帧数": 24,
-      "车牌号": "粤SYR159",
-      "车牌置信度": 0.9983,
-      "状态": "CONFIRMED",
-      "应急车道重叠": 1.0,
-      "备注": "置信 1.00 且 2 次一致",
-      "证据图": "09_粤SYR159_2023-03-04_153830.jpg"
-    },
-    {
-      "序号": 10,
-      "时间_起": "2023-03-04 15:38:30",
-      "时间_止": "2023-03-04 15:38:31",
-      "时间类型": "记录仪时间",
-      "视频内时间_起_秒": 28.467,
-      "视频内时间_止_秒": 29.2,
-      "出现时长_秒": 0.73,
-      "帧数": 12,
-      "车牌号": "粤SYR159",
-      "车牌置信度": 0.9993,
-      "状态": "CONFIRMED",
-      "应急车道重叠": 0.571,
-      "备注": "置信 1.00 且 8 次一致",
-      "证据图": "10_粤SYR159_2023-03-04_153830.jpg"
+      "备注": "置信 1.00 且 6 次一致",
+      "证据图": "03_粤GD38897_2023-03-04_153804.jpg",
+      "证据目录": "案例03_粤GD38897",
+      "证据图1": "原图.jpg",
+      "证据图2": "证据帧2.jpg",
+      "证据图2_时刻_秒": 3.267,
+      "证据图3": "证据帧3.jpg",
+      "证据图3_时刻_秒": 6.467,
+      "取帧说明": "可辨识帧 10 → 最早附近 t=3.27s(帧98) / 原图(置信最高) t=5.93s(帧178) / 最晚附近 t=6.47s(帧194)"
     }
   ],
   "run": {
     "schema": 1,
-    "version": "v0.1.1",
+    "version": "v0.2.0",
     "script": "pipeline_v2.py",
-    "time": "2026-10-11 19:23:41",
+    "time": "2026-10-12 00:01:54",
     "argv": [
       "pipeline_v2.py",
       "--video",
@@ -178,9 +87,9 @@
       "--roi",
       "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\roi\\roi_image50.json",
       "--veh-jsonl",
-      "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\..\\_reuse\\run\\xt_v011\\veh_xt_v011.jsonl",
+      "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\..\\_reuse\\run\\xt_v021\\veh_xt_v021.jsonl",
       "--outdir",
-      "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\..\\_reuse\\run\\xt_v011",
+      "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\..\\_reuse\\run\\xt_v021",
       "--no-mask-detect",
       "--onnx",
       "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\onnx"
@@ -188,9 +97,9 @@
     "args": {
       "video": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\downloads\\BV1CFRGBVEpo_00m24s-00m59s_h264.mp4",
       "roi": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\roi\\roi_image50.json",
-      "veh_jsonl": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\run\\xt_v011\\veh_xt_v011.jsonl",
+      "veh_jsonl": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\run\\xt_v021\\veh_xt_v021.jsonl",
       "onnx": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\onnx",
-      "outdir": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\run\\xt_v011",
+      "outdir": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\run\\xt_v021",
       "plate_conf": 0.15,
       "pad_ratio": 1.5,
       "up": 6.0,
@@ -201,7 +110,7 @@
       "max_frames": 16
     },
     "python": "3.12.10",
-    "git_commit": null,
+    "git_commit": "1e2686a",
     "video": {
       "path": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\downloads\\BV1CFRGBVEpo_00m24s-00m59s_h264.mp4",
       "size": 42923630,
@@ -918,14 +827,14 @@
         1257.3
       ],
       "warnings": [
-        "ROI 多边形有 16 个顶点归一化坐标越界（>1 或 <0），换算到视频坐标后超出画面：[[1.124088, 0.880153], [1.123229, 0.900763], [1.109918, 1.164122]] —— 说明标定时截图里的视频区域没被正确识别（--shot 的黑边/缩放），该 ROI 的右边界会被画面截断，与预期不一致，建议重标"
+        "ROI 多边形有 16 个顶点落在画面外（归一化坐标 >1 或 <0），实际 bbox=[507.8, 440.2, 2158.2, 1257.3]（画幅 1920x1080）。若 roi_verify.jpg 里叠加的形状与标注一致，那就是**有意画到画面外**，可直接用；若不一致说明标定时截图里的视频区域没被正确识别（黑边/缩放），需重标。"
       ]
     },
     "inputs": {
       "veh_jsonl": {
-        "path": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\run\\xt_v011\\veh_xt_v011.jsonl",
-        "size": 371441,
-        "sha256": "42f3eae2b89b0f69f8057d42b0b0f228e404dff4e38c586af1ca85a48d321c1d"
+        "path": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\run\\xt_v021\\veh_xt_v021.jsonl",
+        "size": 102626,
+        "sha256": "97b86c382b75a91283c9a13cfbdbb206f7e41a194b8d7e309805cf05a8e087e0"
       },
       "plate_detect_onnx": {
         "path": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\onnx\\plate_detect.onnx",
@@ -938,35 +847,37 @@
       1080
     ],
     "video_fps_declared": 30.0,
-    "n_roi_tracks": 14,
-    "n_confirmed": 11,
-    "n_suspect": 3,
+    "n_roi_tracks": 5,
+    "n_confirmed": 4,
+    "n_suspect": 1,
     "n_unreadable": 0,
     "outputs": {
       "schema": 1,
-      "version": "v0.1.1",
+      "version": "v0.2.0",
       "script": "make_outputs.py",
-      "time": "2026-10-11 19:23:44",
+      "time": "2026-10-12 00:01:58",
       "argv": [
         "make_outputs.py",
         "--result",
-        "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\..\\_reuse\\run\\xt_v011\\result_merged.json",
+        "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\..\\_reuse\\run\\xt_v021\\result_merged.json",
         "--video",
         "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\downloads\\BV1CFRGBVEpo_00m24s-00m59s_h264.mp4",
         "--outdir",
-        "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\downloads\\xt_v011",
+        "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\downloads\\xt_v021",
         "--time-mode",
-        "clock"
+        "clock",
+        "--base-ts",
+        "2023-03-04 15:38:02"
       ],
       "args": {
-        "result": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\run\\xt_v011\\result_merged.json",
+        "result": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\run\\xt_v021\\result_merged.json",
         "video": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\downloads\\BV1CFRGBVEpo_00m24s-00m59s_h264.mp4",
-        "outdir": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\downloads\\xt_v011",
-        "base_ts": null,
+        "outdir": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\downloads\\xt_v021",
+        "base_ts": "2023-03-04 15:38:02",
         "time_mode": "clock"
       },
       "python": "3.12.10",
-      "git_commit": null,
+      "git_commit": "1e2686a",
       "video": {
         "path": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\downloads\\BV1CFRGBVEpo_00m24s-00m59s_h264.mp4",
         "size": 42923630,
@@ -978,66 +889,66 @@
       },
       "inputs": {
         "result_in": {
-          "path": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\run\\xt_v011\\result_merged.json",
-          "size": 56842,
-          "sha256": "41e637ed248bd59231d40b3d21586391b276b39b3835da77700998d0f73977d1"
+          "path": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\run\\xt_v021\\result_merged.json",
+          "size": 38965,
+          "sha256": "532d52149ea4d79553f62bf82a8f8374ae7b6697f512a508556ec35d2800bcfa"
         }
       },
       "time_mode": "clock",
       "base_timestamp": "2023-03-04 15:38:02",
-      "n_vehicles": 10,
+      "n_vehicles": 3,
       "outputs": {
-        "csv": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\downloads\\xt_v011\\检测结果.csv",
-        "json": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\downloads\\xt_v011\\检测结果.json",
-        "evidence_dir": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\downloads\\xt_v011\\证据图"
+        "csv": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\downloads\\xt_v021\\检测结果.csv",
+        "json": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\downloads\\xt_v021\\检测结果.json",
+        "evidence_dir": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\downloads\\xt_v021\\证据图"
       }
     },
     "merge": {
       "schema": 1,
-      "version": "v0.1.1",
+      "version": "v0.2.0",
       "script": "merge_tracks.py",
-      "time": "2026-10-11 19:23:42",
+      "time": "2026-10-12 00:01:56",
       "argv": [
         "merge_tracks.py",
         "--result",
-        "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\..\\_reuse\\run\\xt_v011\\result.json",
+        "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\..\\_reuse\\run\\xt_v021\\result.json",
         "--veh-jsonl",
-        "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\..\\_reuse\\run\\xt_v011\\veh_xt_v011.jsonl",
+        "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\..\\_reuse\\run\\xt_v021\\veh_xt_v021.jsonl",
         "--out",
-        "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\..\\_reuse\\run\\xt_v011\\result_merged.json",
+        "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\..\\_reuse\\run\\xt_v021\\result_merged.json",
         "--time-tol-frames",
         "12",
         "--dist-max",
         "1.5"
       ],
       "args": {
-        "result": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\run\\xt_v011\\result.json",
-        "veh_jsonl": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\run\\xt_v011\\veh_xt_v011.jsonl",
-        "out": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\run\\xt_v011\\result_merged.json",
+        "result": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\run\\xt_v021\\result.json",
+        "veh_jsonl": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\run\\xt_v021\\veh_xt_v021.jsonl",
+        "out": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\run\\xt_v021\\result_merged.json",
         "gap_max": 3.0,
         "dist_max": 1.5,
         "time_tol_frames": 12
       },
       "python": "3.12.10",
-      "git_commit": null,
+      "git_commit": "1e2686a",
       "inputs": {
         "result_in": {
-          "path": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\run\\xt_v011\\result.json",
-          "size": 57710,
-          "sha256": "8a030ddc4ceb7c2e05437450a540b1677986d881eecbea847001b3fcd0c2d2bb"
+          "path": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\run\\xt_v021\\result.json",
+          "size": 38865,
+          "sha256": "6a97ca92dda6dec91a39d4ae86bec2fb23861788dc03bbe7e5f26c1e5849b6b9"
         },
         "veh_jsonl": {
-          "path": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\run\\xt_v011\\veh_xt_v011.jsonl",
-          "size": 371441,
-          "sha256": "42f3eae2b89b0f69f8057d42b0b0f228e404dff4e38c586af1ca85a48d321c1d"
+          "path": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\run\\xt_v021\\veh_xt_v021.jsonl",
+          "size": 102626,
+          "sha256": "97b86c382b75a91283c9a13cfbdbb206f7e41a194b8d7e309805cf05a8e087e0"
         }
       },
-      "n_cases_before_merge": 14,
-      "n_cases_after_merge": 10,
+      "n_cases_before_merge": 5,
+      "n_cases_after_merge": 3,
       "outputs": {
-        "result_out": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\run\\xt_v011\\result_merged.json",
-        "size": 54746,
-        "sha256": "a094525906676591a13ab570ae373cf527d958c3c088f6c53f7b71aad3e519a3"
+        "result_out": "D:\\Users\\Lhh\\Documents\\dsh\\yingjichedao\\_reuse\\run\\xt_v021\\result_merged.json",
+        "size": 36866,
+        "sha256": "3ae21567fcf9312d6fb57af8a26a6b01ca0172c275fc438f4e9d2aa776198b5a"
       }
     },
     "script_chain": [

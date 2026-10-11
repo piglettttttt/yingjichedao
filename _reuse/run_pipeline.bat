@@ -34,8 +34,10 @@ set "FFPROBE=%ROOT%\bin\ffprobe.exe"
 set "FFMPEG=%ROOT%\bin\ffmpeg.exe"
 
 if "%~1"=="" (
-  echo Usage: run_pipeline.bat ^<video^> ^<roi.json^> ^<output-dir^> [base-timestamp]
-  echo Note:  ROI json comes from parse_roi.bat
+  echo Usage: run_pipeline.bat ^<video^> ^<roi.json^> ^<output-dir^> [base-timestamp] [seconds]
+  echo   ROI json comes from parse_roi.bat
+  echo   seconds = how much of the video to analyse, default 30.
+  echo   Use a few seconds while wiring things up; the chain is identical.
   exit /b 2
 )
 
@@ -43,6 +45,8 @@ set "VIDEO=%~f1"
 set "ROI=%~f2"
 set "OUTDIR=%~f3"
 set "BASETS=%~4"
+set "SECS=%~5"
+if "%SECS%"=="" set "SECS=30"
 
 if not exist "%PY%"    ( echo [ERROR] python not found: %PY% & exit /b 2 )
 if not exist "%VIDEO%" ( echo [ERROR] video not found: %VIDEO% & exit /b 2 )
@@ -61,6 +65,7 @@ echo  video    : %VIDEO%
 echo  roi      : %ROI%
 echo  outdir   : %OUTDIR%
 echo  workdir  : %RUN%
+echo  analyse  : first %SECS% s of the video
 if "%TIME_MODE%"=="" set "TIME_MODE=clock"
 if not "%TIME_MODE%"=="clock" echo  time mode: %TIME_MODE%
 echo ============================================================
@@ -79,23 +84,35 @@ if not defined CODEC echo        [WARN] ffprobe could not read the codec - check
 if defined CODEC echo        codec = %CODEC%
 if /i "%CODEC%"=="av1" goto :av1
 
+rem  weights live in the repo root (only one copy is kept, see .gitignore notes).
+rem  Do NOT point this at %REUSE%\yolo11n.pt: that duplicate was removed, and a
+rem  missing path makes ultralytics silently download the file into the current
+rem  directory instead of failing.
+set "WEIGHTS=%ROOT%\yolo11n.pt"
+if not exist "%WEIGHTS%" (
+  echo [ERROR] weights not found: %WEIGHTS%
+  echo         keep exactly one copy at the repo root; do not let ultralytics
+  echo         download it - it would silently write a second copy here.
+  exit /b 2
+)
+
 echo.
-echo [1/4] vehicle detection (YOLO)
-"%PY%" "%REUSE%stage1_vehicles.py" --video "%VIDEO%" --roi "%ROI%" --out "%VEH%" --weights "%REUSE%yolo11n.pt"
+echo [1/4] vehicle detection - YOLO
+"%PY%" "%REUSE%stage1_vehicles.py" --video "%VIDEO%" --roi "%ROI%" --out "%VEH%" --weights "%WEIGHTS%" --end %SECS%
 if errorlevel 1 ( echo [FAILED] stage1_vehicles.py & exit /b 1 )
 
 echo.
-echo [2/4] two-stage plate OCR (locate plate -^> crop+upscale -^> recognize)
+echo [2/4] two-stage plate OCR: locate plate, crop+upscale, recognize
 "%PY%" "%REUSE%pipeline_v2.py" --video "%VIDEO%" --roi "%ROI%" --veh-jsonl "%VEH%" --outdir "%RUN%" --no-mask-detect --onnx "%REUSE%onnx"
 if errorlevel 1 ( echo [FAILED] pipeline_v2.py & exit /b 1 )
 
 echo.
-echo [3/4] track merge (fixes the inflated case count)
+echo [3/4] track merge - fixes the inflated case count
 "%PY%" "%REUSE%merge_tracks.py" --result "%RUN%\result.json" --veh-jsonl "%VEH%" --out "%RUN%\result_merged.json" --time-tol-frames 12 --dist-max 1.5
 if errorlevel 1 ( echo [FAILED] merge_tracks.py & exit /b 1 )
 
 echo.
-echo [4/4] write outputs (CSV / JSON / evidence images)
+echo [4/4] write outputs: CSV / JSON / evidence frames
 rem  NOTE: no parenthesised if/else block around the python call. Keep the three
 rem  cases as separate jumps - a nested ( ) else ( ) block around a quoted
 rem  command line is what produced the garbled "'Ov' is not recognized" error.

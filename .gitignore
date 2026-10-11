@@ -41,3 +41,7 @@ Thumbs.db
 desktop.ini
 .vscode/
 .idea/
+
+# ultralytics 下载权重时的半成品文件（路径写错才会出现）
+_reuse/.yolo11n.pt.*.part
+*.part

@@ -25,7 +25,7 @@ import subprocess
 import sys
 from datetime import datetime
 
-VERSION = "v0.1.1"
+VERSION = "v0.2.0"
 
 SCHEMA = 1
 _READ_CHUNK = 1 << 20

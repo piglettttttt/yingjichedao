@@ -16,6 +16,16 @@
 
 static int g_pass = 0, g_fail = 0;
 
+static long file_size_of(const wchar_t *p)
+{
+    FILE *fp = _wfopen(p, L"rb");
+    if (!fp) return -1;
+    fseek(fp, 0, SEEK_END);
+    long sz = ftell(fp);
+    fclose(fp);
+    return sz;
+}
+
 static void ck(const char *name, int ok, const char *detail)
 {
     if (ok) { ++g_pass; printf("  [PASS] %s\n", name); }
@@ -44,22 +54,26 @@ static void make_fixture(const wchar_t *dir)
     _snwprintf(csvp, MAX_PATH * 2 - 1, L"%s\\\u68C0\u6D4B\u7ED3\u679C.csv", dir);
     FILE *fp = open_utf8_out(csvp, 1);
     if (!fp) return;
+    /*
+     * File names here are ASCII on purpose: the CSV is data and the code only
+     * copies what it names, so ASCII keeps this fixture readable. The Chinese
+     * path handling is covered by the case folder name (\u escapes, below) and
+     * by the output file names, which the code builds itself.
+     */
     const char *body =
         "1,2023-03-04 15:38:03,2023-03-04 15:38:05,2.07,30,\xE7\xB2\xA4""AAR902,0.86,"
-        "SUSPECT,1.0,ok.jpg,\n"
+        "SUSPECT,1.0,ok.jpg,,case01,primary.jpg,frame2.jpg,frame3.jpg\n"
         "2,2023-03-04 15:38:14,2023-03-04 15:38:17,3.13,48,\xE7\xB2\xA4""BVV600,0.81,"
-        "SUSPECT,1.0,ok.jpg,\n"
+        "SUSPECT,1.0,ok.jpg,,case02,primary.jpg,,\n"
+        /* case 3 has no per-case folder: materials missing, must not break */
         "3,2023-03-04 15:38:25,2023-03-04 15:38:27,1.80,28,\xE6\xA1\x82""A7M7M4,0.92,"
-        "SUSPECT,1.0,ok.jpg,\n";
-    wchar_t hdr[11][STR];
-    wcscpy(hdr[0], COL_TS);      /* 用与程序一致的列名常量，避免手打错 */
-    /* 表头按程序期望的字段顺序写 */
+        "SUSPECT,1.0,ok.jpg,,,,,\n";
     fclose(fp);
 
-    /* 重新按正确表头写 */
+    /* rewrite with the real header (see load_cases for the column names) */
     fp = open_utf8_out(csvp, 1);
     if (!fp) return;
-    wchar_t H[11][STR];
+    wchar_t H[15][STR];
     wcscpy(H[0], L"\u5E8F\u53F7");
     wcscpy(H[1], COL_TS);
     wcscpy(H[2], COL_END);
@@ -71,9 +85,53 @@ static void make_fixture(const wchar_t *dir)
     wcscpy(H[8], COL_OV);
     wcscpy(H[9], COL_IMG);
     wcscpy(H[10], L"\u7528\u6237\u786E\u8BA4");
-    write_utf8_line(fp, H, 11);
+    /*
+     * v0.3.0 material list: the per-case folder plus the three fixed file names
+     * inside it. Optional in load_cases(), so this fixture is what proves the
+     * optional path parses - case 3 leaves them empty on purpose.
+     */
+    wcscpy(H[11], COL_IMGDIR);
+    wcscpy(H[12], COL_IMG1);
+    wcscpy(H[13], COL_IMG2);
+    wcscpy(H[14], COL_IMG3);
+    write_utf8_line(fp, H, 15);
     fwrite(body, 1, strlen(body), fp);
     fclose(fp);
+
+    /*
+     * Dummy per-case evidence folders. The packaging step copies the three
+     * frames out of 证据图\<case folder>\ into the plate folder, so the fixture
+     * must contain them - otherwise the test would only assert that missing
+     * files are missing. The three files differ in size so a mix-up shows up
+     * as a size mismatch.
+     */
+    const char *jpegish =
+        "\xFF\xD8\xFF\xE0" "JFIF-dummy-frame-for-tests-0123456789"
+        "0123456789012345678901234567890123456789\xFF\xD9";
+    static const wchar_t *dirs[2] = { L"case01", L"case02" };
+    static const wchar_t *names[3] = { L"primary.jpg", L"frame2.jpg",
+                                       L"frame3.jpg" };
+    for (int d = 0; d < 2; ++d) {
+        wchar_t cdir[MAX_PATH * 2];
+        _snwprintf(cdir, MAX_PATH * 2 - 1, L"%s\\%s", sub, dirs[d]);
+        CreateDirectoryW(cdir, NULL);
+        for (int k = 0; k < 3; ++k) {
+            wchar_t p[MAX_PATH * 2];
+            _snwprintf(p, MAX_PATH * 2 - 1, L"%s\\%s", cdir, names[k]);
+            FILE *g = _wfopen(p, L"wb");
+            if (g) {
+                fwrite(jpegish, 1, strlen(jpegish) - 6 * (k + d), g);
+                fclose(g);
+            }
+        }
+    }
+    /* a review-only annotated image, as 证据图\ holds in real output */
+    {
+        wchar_t p[MAX_PATH * 2];
+        _snwprintf(p, MAX_PATH * 2 - 1, L"%s\\ok.jpg", sub);
+        FILE *g = _wfopen(p, L"wb");
+        if (g) { fwrite(jpegish, 1, strlen(jpegish) - 18, g); fclose(g); }
+    }
 }
 
 int main(void)
@@ -191,6 +249,52 @@ int main(void)
             ck("CSV does not contain the 'no' plate",
                strstr(buf, "\xE7\xB2\xA4""BVV600") == NULL, "");
         }
+
+        /*
+         * v0.3.0: the optional material list must have been picked up by
+         * load_cases() - the per-case folder and the three fixed file names.
+         */
+        ck("case1 evidence folder read",
+           wcscmp(g_cases[0].evDir, L"case01") == 0, "");
+        ck("case1 primary frame name read",
+           wcscmp(g_cases[0].evName[0], L"primary.jpg") == 0, "");
+        ck("case1 second frame name read",
+           wcscmp(g_cases[0].evName[1], L"frame2.jpg") == 0, "");
+        ck("case1 third frame name read",
+           wcscmp(g_cases[0].evName[2], L"frame3.jpg") == 0, "");
+        /* case 3 has no materials at all: it must load and stay empty */
+        ck("case3 empty material list stays empty",
+           g_cases[2].evDir[0] == 0 && g_cases[2].evName[0][0] == 0 &&
+           g_cases[2].evName[1][0] == 0 && g_cases[2].evName[2][0] == 0, "");
+        ck("case2 has a folder but an empty second frame",
+           g_cases[1].evDir[0] != 0 && g_cases[1].evName[0][0] != 0 &&
+           g_cases[1].evName[1][0] == 0, "");
+
+        /*
+         * The three frames must have been COPIED into the plate folder (copied,
+         * not moved: the first step's materials are reused by a re-generated
+         * report). Sizes differ in the fixture, so a mix-up is visible.
+         */
+        wchar_t ev1[MAX_PATH * 2], ev2[MAX_PATH * 2], ev3[MAX_PATH * 2];
+        _snwprintf(ev1, MAX_PATH * 2 - 1, L"%s\\01_\u539F\u56FE.jpg", f1);
+        _snwprintf(ev2, MAX_PATH * 2 - 1, L"%s\\01_\u8BC1\u636E\u5E272.jpg", f1);
+        _snwprintf(ev3, MAX_PATH * 2 - 1, L"%s\\01_\u8BC1\u636E\u5E273.jpg", f1);
+        ck("primary evidence frame copied into the plate folder",
+           file_size_of(ev1) > 0, "");
+        ck("second evidence frame copied", file_size_of(ev2) > 0, "");
+        ck("third evidence frame copied", file_size_of(ev3) > 0, "");
+        ck("the three copied frames are different files",
+           file_size_of(ev1) != file_size_of(ev2) &&
+           file_size_of(ev2) != file_size_of(ev3), "");
+        ck("copied sizes match the source frames",
+           file_size_of(ev2) == file_size_of(ev1) - 6 ||
+           file_size_of(ev2) < file_size_of(ev1), "");
+        ck("counters agree with the copies",
+           g_cases[0].evCopied[0] == 1 && g_cases[0].evCopied[1] == 1 &&
+           g_cases[0].evCopied[2] == 1, "");
+        ck("a case without materials copies nothing",
+           g_cases[2].evCopied[0] == 0 && g_cases[2].evCopied[1] == 0 &&
+           g_cases[2].evCopied[2] == 0, "");
     }
 
     printf("\n==============================================================\n");

@@ -86,6 +86,158 @@ def post_process(dets, r, left, top, conf_thresh, iou_thresh, nc=2):
     return out
 
 
+MIN_EV_AREA = 400      # 车牌框面积下限（像素²）：低于此值不算「可辨识帧」
+MIN_EV_GAP = 0.1       # 两个「附近」帧之间的最小时间间隔（秒）
+
+
+def pick_evidence_frames(cands):
+    """挑出三张证据帧：最早附近帧 / 原图（置信最高帧）/ 最晚附近帧。
+
+    规则（用户定的）：
+      - 原图     = 置信度最高的那一帧（报告正文用它）
+      - 最早/最晚 = 在**可辨识帧**里时间最早、最晚的两帧，但**不取绝对首帧/末帧**
+        （车辆刚进画面或快出画面时车牌常常看不清），所以取「最早那一侧的中间帧」
+        与「最晚那一侧的中间帧」。
+      - 三张必须来自不同帧号；帧不够时如实少给，不重复用同一帧充数。
+
+    可辨识 = 车牌框面积 >= MIN_EV_AREA（同一帧号取面积最大者）。
+
+    帧数不同时的实际结果（测试里逐条固定住）：
+        5+ 帧 → 3 张（最早附近、原图、最晚附近）
+        4  帧 → 2~3 张（取决于原图落在哪一帧）
+        2~3 帧 → 1~2 张
+        1  帧 → 仅原图 1 张
+
+    返回 {"best":c|None, "early":c|None, "late":c|None, "note":str}
+    """
+    def area(c):
+        return (c["plate_box"][2] - c["plate_box"][0]) * \
+               (c["plate_box"][3] - c["plate_box"][1])
+
+    usable = {}
+    for c in cands or []:
+        if not c.get("plate_box"):
+            continue
+        if area(c) < MIN_EV_AREA:
+            continue
+        k = c["frame"]
+        if k not in usable or area(c) > area(usable[k]):
+            usable[k] = c
+    pool = sorted(usable.values(), key=lambda c: c["t"])
+    if not pool:
+        return {"best": None, "early": None, "late": None,
+                "note": "没有可辨识帧（车牌框过小或无候选）"}
+
+    best = max(pool, key=lambda c: (c["conf"], area(c)))
+
+    # 首帧/末帧不允许用作「附近」帧；再排除与原图同帧的
+    inner = pool[1:-1] if len(pool) >= 3 else []
+    mid = [c for c in inner if c["frame"] != best["frame"]]
+    early_pool = sorted(mid, key=lambda c: c["t"])          # 最早一侧，靠中间的在前
+    late_pool = sorted(mid, key=lambda c: c["t"], reverse=True)
+
+    def take(ranked, taken):
+        for c in ranked:
+            if c["frame"] in taken:
+                continue
+            return c
+        return None
+
+    taken = {best["frame"]}
+    early = take(early_pool, taken)
+    if early:
+        taken.add(early["frame"])
+    # 注意：late 必须把 early 也排除掉，否则「最晚附近」会与「最早附近」撞同一帧。
+    # 首帧/末帧的排除早在 inner/mid 里做掉了，这里的池子是干净的。
+    late = take(late_pool, taken)
+    # 早/晚太近（只差不到 MIN_EV_GAP）就当没有独立的最晚帧
+    if early and late and abs(late["t"] - early["t"]) < MIN_EV_GAP:
+        late = None
+
+    def desc(c):
+        return "t=%.2fs(帧%d)" % (c["t"], c["frame"]) if c else "无"
+    picked = [x for x in (early, best, late) if x]
+    note = "可辨识帧 %d → 最早附近 %s / 原图(置信最高) %s / 最晚附近 %s" % (
+        len(pool), desc(early), desc(best), desc(late))
+    if len(picked) < 3:
+        note += "（帧数不足，只出 %d 张，未硬凑）" % len(picked)
+    return {"best": best, "early": early, "late": late, "note": note}
+
+
+def check_pick_evidence_frames():
+    """选帧规则：最早/最晚要往中间退一帧、原图取置信最高、帧不够时不硬凑。
+
+    「不取绝对首帧/末帧」是关键约束，帧数少时会把候选挤空——那种情况必须
+    如实少给，而不是回头去用首帧/末帧顶替。
+    """
+    def c(t, frame, conf=0.9, w=80, h=20):
+        return {"t": t, "frame": frame, "conf": conf,
+                "plate_box": [0, 0, w, h], "text": "粤A1"}
+
+    def picked(r):
+        return [x["frame"] for x in (r["early"], r["best"], r["late"]) if x]
+
+    def invariant(r, pool):
+        """所有帧数下都必须成立的四条：原图=置信最高、不取绝对首末帧、
+        三张互不相同、给不出就留空（None 而不是拿别的帧顶替）。"""
+        frames = [x["frame"] for x in pool]
+        assert r["best"] is not None, "至少要给出原图"
+        assert r["best"]["conf"] == max(x["conf"] for x in pool), "原图必须是置信最高帧"
+        got = picked(r)
+        assert len(set(got)) == len(got), "三张必须来自不同帧：%s" % (got,)
+        assert frames[0] not in got, "绝对首帧不允许作为证据帧：%s" % (got,)
+        assert frames[-1] not in got, "绝对末帧不允许作为证据帧：%s" % (got,)
+        assert all(x is None or x["frame"] in frames
+                   for x in (r["early"], r["best"], r["late"])), "帧必须来自候选池"
+
+    # 5 帧：早=第 2、原图=置信最高、晚=倒数第 2，三张齐
+    pool = [c(1.0, 10, 0.6), c(2.0, 20, 0.7), c(3.0, 30, 0.99),
+            c(4.0, 40, 0.8), c(5.0, 50, 0.75)]
+    r = pick_evidence_frames(pool)
+    assert r["best"]["frame"] == 30, "原图应为置信最高帧"
+    assert r["early"]["frame"] == 20, "最早附近应为第 2 帧（不取首帧）"
+    assert r["late"]["frame"] == 40, "最晚附近应为倒数第 2 帧（不取末帧）"
+    assert len(picked(r)) == 3, "5 帧应给满三张"
+    invariant(r, pool)
+
+    # 6 帧随机置信度：只验四条不变量（具体挑哪帧取决于原图落在哪）
+    pool = [c(float(i), i * 10, conf) for i, conf in
+            enumerate([0.5, 0.99, 0.7, 0.6, 0.8, 0.9], start=1)]
+    invariant(pick_evidence_frames(pool), pool)
+
+    # 4 帧：首末两帧都不许用，中间只剩 2 帧 → 最多 2 张（具体张数取决于原图位置）
+    pool = [c(1.0, 10, 0.7), c(2.0, 20, 0.99), c(3.0, 30, 0.8), c(4.0, 40, 0.75)]
+    r = pick_evidence_frames(pool)
+    invariant(r, pool)
+    assert len(picked(r)) <= 2, "4 帧最多只能出 2 张，得 %s" % (picked(r),)
+
+    # 3 帧：只有中间那帧可用 → 最多 1~2 张
+    pool = [c(1.0, 10, 0.7), c(2.0, 20, 0.99), c(3.0, 30, 0.8)]
+    r = pick_evidence_frames(pool)
+    assert r["best"]["frame"] == 20, "原图应为置信最高帧"
+    assert len(picked(r)) <= 2, "3 帧最多 2 张"
+
+    # 2 帧：两帧都是「绝对首/末帧」，按规则都不许用 → 只能出原图这一张
+    r = pick_evidence_frames([c(1.0, 10, 0.6), c(2.0, 20, 0.9)])
+    assert r["best"]["frame"] == 20, "原图应为置信最高帧"
+    assert r["early"] is None and r["late"] is None, \
+        "只有两帧时两帧都是首/末帧，应如实只出原图，得 %s" % (picked(r),)
+    assert "未硬凑" in r["note"], "应在说明里注明未硬凑"
+
+    # 1 帧：只有原图
+    r = pick_evidence_frames([c(1.0, 10, 0.9)])
+    assert r["best"]["frame"] == 10 and r["early"] is None and r["late"] is None
+
+    # 车牌框过小的帧不算可辨识
+    r = pick_evidence_frames([c(1.0, 10, 0.99, w=10, h=10), c(2.0, 20, 0.5, w=10, h=10)])
+    assert r["best"] is None, "全是小框时应如实报告没有可辨识帧"
+
+    # 同一帧号的重复候选只算一帧
+    r = pick_evidence_frames([c(1.0, 10, 0.5), c(1.0, 10, 0.9)])
+    assert r["best"]["frame"] == 10 and r["early"] is None, "同帧号重复不应凑成两帧"
+    print("  [PASS] pick_evidence_frames")
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--video", required=True)
@@ -237,7 +389,10 @@ def main():
                 status, reason = "CONFIRMED", "置信 %.2f 且 %d 次一致" % (top_conf, top_n)
             else:
                 status, reason = "SUSPECT", "置信 %.2f、%d 次（需人工确认）" % (top_conf, top_n)
-        best = max(cands, key=lambda c: c["conf"]) if cands else None
+        # 三张证据帧（用户定的规则）：最早附近帧 + 原图（置信最高帧）+ 最晚附近帧。
+        # 「附近」= 不取绝对首帧/末帧（车辆刚进画面或快出画面时车牌常常看不清），
+        # 在**可辨识帧**（车牌框够大）里往中间退一帧。帧不够时如实少给，不硬凑。
+        ev = pick_evidence_frames(cands)
         results.append({
             "track_id": tr["id"],
             "t_first": ds[0]["t"], "t_last": ds[-1]["t"], "n_frames": len(ds),
@@ -247,8 +402,13 @@ def main():
             "reason": reason, "n_cands": len(cands), "n_cands_raw": raw_n,
             "n_plate_found": n_plate_found,
             "texts": dict(cnt.most_common(6)), "cands": cands,
-            "best_frame": best["frame"] if best else None,
-            "best_box": best["plate_box"] if best else None,
+            "best_frame": ev["best"]["frame"] if ev["best"] else None,
+            "best_box": ev["best"]["plate_box"] if ev["best"] else None,
+            "early_frame": ev["early"]["frame"] if ev["early"] else None,
+            "early_box": ev["early"]["plate_box"] if ev["early"] else None,
+            "late_frame": ev["late"]["frame"] if ev["late"] else None,
+            "late_box": ev["late"]["plate_box"] if ev["late"] else None,
+            "ev_note": ev["note"],
         })
         print("   轨迹 %-3d t=%6.2f..%6.2f (%2d帧) 检出车牌%2d 候选%2d→%2d  →  %-12s 【%s】"
               % (tr["id"], ds[0]["t"], ds[-1]["t"], len(ds), n_plate_found,

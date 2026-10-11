@@ -75,9 +75,16 @@ int main(void)
     wcsncpy(g_folder, folder, MAX_PATH * 2 - 1);
 
     char det_u8[128];
+    char want_u8[128];              /* the plate the operator types in section 2 */
+    want_u8[0] = 0;
     w2u(g_cases[0].detected, det_u8, sizeof(det_u8));
     printf("   detected = %s\n", det_u8);
-    ck("detected plate is the machine reading", strcmp(det_u8, "\xE7\xB2\xA4""AX285E") == 0, det_u8);
+    /*
+     * This test runs on a GENERATED fixture (make_test_case.py), so do not
+     * hard-code which plate it holds: read it back and use it. Hard-coding a
+     * plate made the test fail whenever the detector picked a different one.
+     */
+    ck("detected plate is non-empty", wcslen(g_cases[0].detected) > 0, det_u8);
 
     /*
      * 2) Regression for the reported bug.
@@ -103,7 +110,14 @@ int main(void)
                    (void *)host);
             ++failures;
         } else {
-            const wchar_t *corrected = L"\u6842AX285E";     /* 桂AX285E */
+            /*
+             * Type a DIFFERENT plate than the detected one: same digits, first
+             * character swapped (粤 -> 桂), which is exactly the correction an
+             * operator makes when the province character was misread.
+             */
+            wchar_t corrected[STR];
+            wcsncpy(corrected, g_cases[0].detected, STR - 1);
+            corrected[0] = L'\u6842';                  /* 桂 */
             SetWindowTextW(g_edit, corrected);
             g_hwnd = host;              /* show_case_apply() may repaint */
             g_idx = 0;
@@ -112,10 +126,13 @@ int main(void)
 
             char got_u8[128];
             w2u(g_cases[0].user, got_u8, sizeof(got_u8));
+            w2u(corrected, want_u8, sizeof(want_u8));
             printf("   detected        = %s\n", det_u8);
             printf("   user confirmed  = %s\n", got_u8);
             ck("confirmed plate keeps the typed value, not the detected one",
-               strcmp(got_u8, "\xE6\xA1\x82""AX285E") == 0, got_u8);
+               strcmp(got_u8, want_u8) == 0, got_u8);
+            ck("the typed plate really differs from the detected one",
+               strcmp(got_u8, det_u8) != 0, "");
             ck("status became ST_YES", g_cases[0].st == ST_YES, "");
             DestroyWindow(g_edit);
             g_edit = NULL;
@@ -153,14 +170,14 @@ int main(void)
     CreateDirectoryW(out, NULL);
     _snwprintf(html, MAX_PATH * 2 - 1,
                L"%s\\\u8FDD\u7AE0\u68C0\u6D4B\u62A5\u544A.html", out);
-    write_html_report(html);
+    write_html_report(html, 0);   /* 0 = self-contained (base64) variant */
 
     int sz = file_size(html);
     _snprintf(d, sizeof(d) - 1, "size=%d bytes", sz);
     ck("HTML report created and non-empty", sz > 1000, d);
     ck("contains DOCTYPE", file_has(html, "<!DOCTYPE html>"), "");
     ck("contains the confirmed plate",
-       file_has(html, "\xE6\xA1\x82""AX285E"), "");
+       file_has(html, want_u8), "");
     ck("contains the violation place/direction heading",
        file_has(html, "\xE8\xBF\x9D\xE6\xB3\x95\xE5\x9C\xB0\xE7\x82\xB9"), "");
     ck("contains the typed violation details",
@@ -169,20 +186,38 @@ int main(void)
        wcslen(g_where) <= 200, "");
     ck("contains inlined base64 image",
        file_has(html, "data:image/jpeg;base64,"), "");
-    ck("did not fall back to the annotated image",
-       !file_has(html, "\xE6\x9C\xAA\xE6\x89\xBE\xE5\x88\xB0\xE6\x9C\xAA\xE6\xA0\x87"
-                       "\xE6\xB3\xA8\xE5\x8E\x9F\xE5\x9B\xBE"), "");
     ck("no shadow in CSS", !file_has(html, "box-shadow"), "");
     ck("no gradient in CSS", !file_has(html, "gradient"), "");
 
-    wchar_t plain[MAX_PATH * 2], annot[MAX_PATH * 2];
+    /*
+     * The evidence frames come from the per-case folder the first step wrote
+     * (CSV: 证据目录 + 证据图1/2/3). Check that the report inlines a plain
+     * frame and that a linked (light-weight) report points at real files.
+     */
+    wchar_t plain[MAX_PATH * 2];
     _snwprintf(plain, MAX_PATH * 2 - 1,
-               L"%s\\\u8BC1\u636E\u56FE\\\u539F\u56FE\\%s", folder, g_cases[0].image);
-    _snwprintf(annot, MAX_PATH * 2 - 1,
-               L"%s\\\u8BC1\u636E\u56FE\\%s", folder, g_cases[0].image);
-    ck("plain original frame exists", file_size(plain) > 0, "");
-    ck("plain frame differs from the annotated frame",
-       file_size(plain) != file_size(annot), "");
+               L"%s\\\u8BC1\u636E\u56FE\\%s\\%s", folder, g_cases[0].evDir,
+               g_cases[0].evName[0]);
+    ck("the primary evidence frame exists in the per-case folder",
+       file_size(plain) > 0, "");
+
+    wchar_t htmlq[MAX_PATH * 2];
+    _snwprintf(htmlq, MAX_PATH * 2 - 1,
+               L"%s\\\u8FDD\u7AE0\u68C0\u6D4B\u62A5\u544A_\u8F7B\u91CF\u7248.html",
+               out);
+    write_html_report(htmlq, 1);          /* 1 = linked variant */
+    ck("light-weight report created", file_size(htmlq) > 500, "");
+    ck("light-weight report links instead of inlining",
+       !file_has(htmlq, "data:image/jpeg;base64,"), "");
+    {
+        /* the link looks like src="<plate>/01_原图.jpg" (no trailing space) */
+        char link[512];
+        char plate_u8[128];
+        w2u(g_cases[0].user, plate_u8, sizeof(plate_u8));
+        _snprintf(link, sizeof(link) - 1,
+                  "src=\"%s/01_\xE5\x8E\x9F\xE5\x9B\xBE.jpg\">", plate_u8);
+        ck("light-weight report points at the plate folder", file_has(htmlq, link), link);
+    }
 
     printf("\n============================================================\n");
     printf("RESULT: %s\n", failures ? "FAILED" : "ALL PASSED");
