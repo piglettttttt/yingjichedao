@@ -19,6 +19,14 @@
 
 ## 这个项目做什么
 
+> ### ⚠️ 只能在 Windows 上跑
+>
+> **人工审核程序是 Windows 专用**：它是用 C++（纯 Win32 + GDI+）编译出来的
+> `PlateReview.exe`，**macOS / Linux 既不能运行也不能编译**。
+> Python 检测流水线理论上跨平台，但整条链路（`.bat` 脚本、路径约定、审核程序）
+> 都是按 Windows 设计的，**本项目只支持 Windows x64**。
+> 换机器时不需要装 Visual Studio——`_reuse\dist\PlateReview.exe` 已在仓库里，clone 即可用。
+
 给**行车记录仪视频**做**高速公路应急车道违法占用取证**：
 自动找出占用应急车道的车辆、识别车牌、产出证据图与结果表，再经**人工审核**确认后，
 生成一份可交付的图文违章报告。
@@ -58,20 +66,22 @@ d:\Users\Lhh\Documents\dsh\yingjichedao\
     ├── PlateReview.cpp        审核 GUI 源码（C++，**必须保持纯 ASCII**）
     ├── test_logic.cpp         逻辑回归测试（40 项）
     ├── test_report.cpp        报告 + 确认车牌回归测试
-    ├── build_c.bat            一键编译三个 exe
+    ├── test_package.cpp       在真实产出上跑「生成报告」全链路
+    ├── build_c.bat            一键编译（1 个 GUI + 3 个测试 exe）
     ├── run_pipeline.bat       ★ 一键端到端检测
     ├── parse_roi.bat          ROI 解析（第一步）
     ├── test_python.bat        Python + C 全部回归测试
-    ├── tests\test_pipeline.py 收集各脚本内联的 check_<func>
+    ├── tests\                 测试脚本（收集 check_<func>、文本卫生检查、报告链接检查）
     ├── runmeta.py             ★ 运行元数据落盘（ROI 指纹 + 参数）
-    ├── dist\                  编译产物 PlateReview.exe / test_logic.exe / test_report.exe
+    ├── dist\                  ★ **审核程序就在这**：PlateReview.exe（205 KB，双击即用）
+    │                          + test_logic.exe / test_report.exe / test_package.exe
+    │                          + README.md（界面说明书）。**exe 已入库**，clone 即可用
     ├── 使用规则.md              操作规程（八节，必读）
     ├── UI_风格规范.md           极简扁平风设计规范
     ├── roi\                   已标定的 ROI（每个视频一份）
     ├── onnx\                  车牌检测 + 识别 ONNX 模型（**含 .data 外置权重，缺了跑不了**）
     ├── ref_hw\                参考项目（高速公路应急车道违章检测 v8.0）
     ├── clpr\                  参考项目（车牌检测识别，权重未采用）
-    ├── archive\               47 个探索期调试脚本（已归档，一般不用）
     └── run\                   中间产物与调试日志（不入库）
 ```
 
@@ -96,6 +106,32 @@ python -m venv .venv
 > `requirements-torch.txt` 里自带 `--index-url https://download.pytorch.org/whl/cpu`。
 > **这一步不能省**：`torch==2.14.1+cpu` 的 `+cpu` 是本地版本号，默认 PyPI 上找不到，
 > 直接 `pip install torch==2.14.1+cpu` 会报 `No matching distribution found`。
+
+## 换一台电脑 clone 之后，要能跑需要做 5 件事
+
+**前提：必须是 Windows x64**（见开头说明，审核程序只能在 Windows 跑）。
+
+| # | 做什么 | 具体命令 / 说明 | 能不能省 |
+|---|---|---|---|
+| **1** | **装 Python 3.12，建虚拟环境装依赖** | `python -m venv .venv`<br>`.venv\Scripts\python.exe -m pip install -r requirements.txt` | 不能省。`.venv` 有 1.3 GB，不在仓库里 |
+| **2** | **补 `bin\` 里的三个外部工具** | ffmpeg / ffprobe / yt-dlp，版本与下载地址见 [`bin\README.md`](bin/README.md)（约 221 MB，仓库不收二进制） | 不能省。缺了 `run_pipeline.bat` 在 [0/4] 编码检查就失败 |
+| **3** | **确认权重与模型在位** | `yolo11n.pt` 与 `_reuse\onnx\` 的 4 个文件（含 `.onnx.data`）**已在仓库里**，clone 就有 | 不用做，但值得核一眼 |
+| **4** | **审核程序 `PlateReview.exe`** | **已在仓库里**（`_reuse\dist\`），clone 即可双击运行 | 不用做。只有改了 C++ 源码才需要装 VS2022 跑 `build_c.bat` 重编 |
+| **5** | **自备测试素材** | 一个行车记录仪视频 + 一张在上面用**红色**划出应急车道的截图；再准备一个**不含中文**的初成果目录 | 不能省。视频与截图不入库 |
+
+**验证装好了**（约 1 分钟）：
+
+```
+_reuse\test_python.bat          rem 文本卫生 + Python 7 组 + C 侧三个测试程序
+```
+
+全绿就说明环境齐了（`ALL TESTS PASSED`）。其中 `test_report` 需要
+`downloads\ax285e_test` fixture，缺失时会 SKIP 而不是报错。
+
+> **路径提醒**：项目里大量命令写的是原机器的绝对路径
+> `D:\Users\Lhh\Documents\dsh\yingjichedao`（例如 `.bat`、`README` 的示例、
+> `make_test_case.py` 里的 `SRC`/`DST`）。换电脑或换目录时，这些地方要改成你的实际路径；
+> 日常使用只需跑 `.bat`，它们用 `%~dp0` 自动定位，不受影响。
 
 ## 快速开始
 
@@ -139,7 +175,8 @@ _reuse\run_pipeline.bat <视频> _reuse\roi\<名字>\roi.json <初成果目录> 
 （挑帧、取帧、落盘、命名），审核 exe **只做两件事**：筛选 + 生成报告。
 这样 exe 不含任何图像处理/选帧/文件猜测逻辑，轻量且职责单一。
 
-1. 双击 `_reuse\dist\PlateReview.exe`（没有就先跑 `_reuse\build_c.bat`）
+1. 双击 `_reuse\dist\PlateReview.exe`（**已在仓库里，无需编译**；只有改了 C++ 源码才需要
+   跑 `_reuse\build_c.bat` 重编，那需要 VS2022）
 2. 入口页粘贴**初成果目录**（路径不得含中文）→「进入」
 3. 逐案例核对：**检测车牌**（只读）→ 需要改就改**确认车牌** → 点 `是` / `否` / `跳过`
    （界面里显示的仍是带 ROI 与放大插图的审核图，仅供人眼判断）
@@ -229,16 +266,18 @@ _reuse\run_pipeline.bat <视频> _reuse\roi\<名字>\roi.json <初成果目录> 
 
 ```
 _reuse\test_python.bat                      rem Python + C 基础回归
-set PKG=downloads\xt_v020
-_reuse\test_python.bat                      rem 追加「生成报告」端到端（剪片段 + 归档证据）
+set PKG=downloads\xt_v021
+_reuse\test_python.bat                      rem 追加「生成报告」端到端（归档证据 + 两份报告）
 ```
 
 | 测试 | 覆盖 | 期望 |
 |---|---|---|
-| `tests\test_pipeline.py` → 4 组 `check_<func>` | `runmeta`（哈希/ROI 告警/元数据）、`run_pipeline`（规范化/候选收紧/ROI 判定）、`merge_tracks`（两张证据帧 + 归并后重挑）、`stage1_vehicles`（ROI 换算/底边归属/权重路径） | 4 组 `ALL PASSED` |
-| `dist\test_logic.exe` | 车牌格式、CJK 路径、CSV 解析（含新增可选列）、**片段切分计划**、时间格式化、证据复制 | `50 passed, 0 failed` |
-| `dist\test_report.exe` | 报告生成、确认车牌不被覆盖、内嵌原图、CSS 无阴影/渐变 | `ALL PASSED` |
-| `dist\test_package.exe`（需 `PKG`） | 用**真实产出**验「生成报告」：读新列、复制原图/帧2、剪片段、片段表 | `15 checks, 0 failed` |
+| `tests\check_text_hygiene.py` | **1 秒级机械检查**：`.bat` 与 `PlateReview.cpp` 必须纯 ASCII、`.bat` 必须 CRLF | 通过 |
+| `tests\test_pipeline.py` → 7 组 `check_<func>` | `runmeta`（哈希/ROI 告警/元数据）、`run_pipeline`（规范化/候选收紧/ROI 判定）、`pipeline_v2`（**三张证据帧规则**）、`merge_tracks`（归并后按合并候选池重挑）、`make_outputs`（`--base-ts` 与目录 ASCII 校验）、`evidence`（**材料齐备**：CSV 点名的文件都在、是完整 JPEG、三张不重复）、`stage1_vehicles` | 7 组 `ALL PASSED` |
+| `dist\test_logic.exe` | 车牌格式、CJK 路径、CSV 解析（含材料清单列）、报告只写「是」、**三张证据帧的复制与计数器** | `40 passed, 0 failed` |
+| `dist\test_report.exe` | 报告生成、确认车牌不被覆盖、内嵌图、**轻量版走链接**、CSS 无阴影/渐变 | `ALL PASSED` |
+| `dist\test_package.exe`（需 `PKG`） | 用**真实产出**验「生成报告」：读材料清单、按车牌归档三张帧、两份报告 | `ALL PASSED` |
+| `tests\check_report_links.py` | 轻量版报告的图片链接必须解析到真实文件、体积必须像轻量版 | 缺失 0 个 |
 
 > ⚠ **别并发跑**：`test_logic.exe` / `test_report.exe` 用**写死的**固定目录
 > `C:\Users\Lhh\pr_test2` / `pr_test3`，同时跑两遍会互相删目录而卡死（实测踩到过）。
@@ -289,8 +328,12 @@ v0.2.0 证据装包在真实产出上端到端通过（10/10 案例归档原图 
   接手先读 v0.1.0 的第 0 章「接手须知」与第 2 章「当前成果与关键决定」，再读第 6 章「未竟事项」。
 - 本仓库已纳入 git（`master` 分支）。提交信息格式：`vX.Y.Z 简短描述`。
 - 版本号约定：主版本=形态/架构变化，次版本=功能新增，补丁版本=修复与小改。
-- **git 里有什么 / 没有什么**：代码、文档、ONNX 模型（3.5 MB）、`yolo11n.pt`（5.6 MB）、
-  人工比对真值表（xlsx）、`xt_v011` 的 CSV/JSON/`run_meta.json` 已入库；
-  视频、`.venv`（1.3 GB）、`bin\`（221 MB）、编译产物 exe、证据图、`_reuse\run\` 不入库
-  （规则见 [`.gitignore`](.gitignore)，缺失件按本 README 与 `bin\README.md` 重建）。
-  仓库 `.git` 约 7.5 MB。
+- **git 里有什么 / 没有什么**（换机器 clone 前先看这里，详细步骤见
+  「[换一台电脑 clone 之后，要能跑需要做 5 件事](#换一台电脑-clone-之后要能跑需要做-5-件事)」）：
+  - **入库**：源码、`.bat`、文档、ONNX 模型（3.5 MB）、`yolo11n.pt`（5.4 MB）、
+    人工比对真值表（xlsx）、几个成果目录的 CSV/JSON/`run_meta.json`、
+    **`_reuse\dist\` 的 4 个 exe**（审核程序是刚需，clone 即可用）。
+  - **不入库**：视频、`.venv`（1.3 GB）、`bin\`（221 MB）、证据图与审核产物、
+    `_reuse\run\`（中间产物）、`_reuse\clpr` 的权重。
+    规则见 [`.gitignore`](.gitignore)，缺失件按本 README 与 `bin\README.md` 补。
+  - 仓库本体约 9.6 MB（110 个文件）。
