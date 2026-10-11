@@ -31,6 +31,12 @@ sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 # COCO 中的道路车辆类
 VEHICLE_CLASSES = {2: "car", 3: "motorcycle", 5: "bus", 7: "truck"}
 
+# 权重放在仓库根目录。用绝对路径而不是相对名 "yolo11n.pt"：
+# ultralytics 找不到相对路径时会**自动联网下载**，而本机 github 直连不通，
+# 结果是一个难懂的报错；而且相对路径依赖当前工作目录，换目录跑就断。
+DEFAULT_WEIGHTS = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "yolo11n.pt")
+
 
 def load_roi(path, fw, fh):
     """读 ROI；优先用归一化坐标（与分辨率无关）。"""
@@ -108,7 +114,9 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--video", required=True)
     ap.add_argument("--roi", required=True, help="parse_roi.py 产出的 roi.json")
-    ap.add_argument("--weights", default="yolo11n.pt")
+    ap.add_argument("--weights", default=DEFAULT_WEIGHTS,
+                    help="车辆检测权重。默认取仓库根的 yolo11n.pt（不依赖当前工作目录；"
+                         "本机直连 github 不通，别让它去自动下载）")
     ap.add_argument("--out", required=True)
     ap.add_argument("--start", type=float, default=0.0)
     ap.add_argument("--end", type=float, default=30.0)

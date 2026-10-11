@@ -226,7 +226,10 @@ def main():
     ap.add_argument("--video", required=True)
     ap.add_argument("--roi", required=True)
     ap.add_argument("--outdir", required=True)
-    ap.add_argument("--weights", default="yolo11n.pt")
+    ap.add_argument("--weights",
+                    default=os.path.join(os.path.dirname(os.path.dirname(
+                        os.path.abspath(__file__))), "yolo11n.pt"),
+                    help="默认取仓库根的 yolo11n.pt（绝对路径，不依赖当前工作目录）")
     ap.add_argument("--fps", type=float, default=15.0, help="车辆检测采样帧率")
     ap.add_argument("--conf", type=float, default=0.30)
     ap.add_argument("--imgsz", type=int, default=640)
