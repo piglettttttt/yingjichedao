@@ -19,8 +19,8 @@ import sys
 
 sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
-SRC = r"D:\Users\Lhh\Documents\dsh\yingjichedao\downloads\xt_v021"
-DST = r"D:\Users\Lhh\Documents\dsh\yingjichedao\downloads\ax285e_test"
+SRC = "downloads/xiangtang"          # 相对仓库根，换机器不必改
+DST = "downloads/ax285e_test"
 
 
 def main():

@@ -95,14 +95,15 @@ d:\Users\Lhh\Documents\dsh\yingjichedao\
 ├── .gitignore / .git\         v0.1.1 建立 git 仓库
 ├── .venv\                     Python 运行环境（不入库）
 ├── bin\                       ffmpeg / ffprobe / yt-dlp（**约 221MB，不入库**，见 bin\README.md）
-├── downloads\                 测试视频与各次成果（视频与证据图不入库）
+├── downloads\                 测试视频、标定截图与检测成果（视频与大图不入库）
 │   ├── BV1CFRGBVEpo_00m24s-00m59s_h264.mp4    ← 「湘塘」测试源（H.264）
-│   ├── xiangtang\             该视频的成果（15 张证据图；**无 证据图\原图\**）
-│   │   └── 参考结果.xlsx / 漏检比对.csv      人工比对真值
-│   ├── xt_v011\               v0.1.1 端到端实跑成果（含 run_meta.json 样例）
-│   ├── ax285e_test\           单案例测试集（粤AX285E，只含 CSV + 证据图，无 检测结果.json）
-│   │   └── 人工审核结果\违章检测报告.html    报告样例
+│   ├── image_44/47/48/50/51.png              标定 ROI 用的红线截图
+│   ├── 流程图\                 操作步骤截图 7 张（入库，被 操作步骤.html 引用）
+│   ├── xiangtang\             该视频 30 秒完整成果（CSV/JSON + run_meta.json + 证据图）
+│   │   └── 参考结果.xlsx       人工比对真值
 │   └── 目押记录.xlsx          第一段视频的人工目押真值
+│      （曾用于对照的 xt_v011 / xt_v020 / xt_v021 / ax_fixture_src / ax285e_test
+│        等中间成果，已随 v0.3.0 定稿清理删除，重跑即可再生）
 ├── yolo11n.pt                 车辆检测权重
 └── _reuse\                    ★ 主要工作区
     ├── PlateReview.cpp        ★ 审核 GUI 源码（C++，纯 ASCII）
@@ -584,6 +585,11 @@ RESULT: ALL PASSED
 - **漏检比对：0 漏检**（与 `参考结果.xlsx` 11 个车牌比对，8 个车牌匹配、3 个位置+时间匹配）
 - 已知偏差：视频叠字比画面**滞后约 5 秒**，故时间不能用于漏检判定
 
+> **注意（v0.3.0 定稿后）**：本节及 §8.3 引用的 `xt_v011` / `xt_v020` / `xt_v021` /
+> `ax_fixture_src` / `ax285e_test` 等中间成果目录**已清理删除**（属可再生的测试件）。
+> 上面的命令与结论保留作历史记录，要复现就先用 `run_pipeline.bat` 重跑一次视频，
+> 再用 `make_test_case.py` 生成单案例测试集（其默认源已改为 `downloads\xiangtang`）。
+
 ### 8.2 单案例端到端（粤AX285E）
 
 用于验证「检测产出 → 审核 → 报告」整条链路：
@@ -593,8 +599,8 @@ RESULT: ALL PASSED
 - 已确认：报告为合法 UTF-8、含确认车牌 `桂AX285E`、含违法地点与行驶方向、
   内嵌图为**零标注原帧**（474 KB，与标注图 410 KB 不同）
 
-> 报告样例可直接打开：
-> [`downloads\ax285e_test\人工审核结果\违章检测报告.html`](downloads/ax285e_test/人工审核结果/违章检测报告.html)
+> 当时的报告样例：`downloads\ax285e_test\人工审核结果\违章检测报告.html`
+> （该目录已随测试件清理删除，见本节开头的说明）
 
 ### 8.3 v0.1.1 端到端实跑（新增：验证一键脚本与归并步）
 

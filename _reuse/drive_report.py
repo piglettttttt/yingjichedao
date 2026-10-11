@@ -23,8 +23,9 @@ u32 = ctypes.WinDLL("user32", use_last_error=True)
 k32 = ctypes.WinDLL("kernel32", use_last_error=True)
 u32.SetProcessDPIAware()
 
-EXE = r"D:\Users\Lhh\Documents\dsh\yingjichedao\_reuse\dist\PlateReview.exe"
-TDIR = r"D:\Users\Lhh\Documents\dsh\yingjichedao\downloads\ax285e_test"
+EXE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "dist", "PlateReview.exe")
+TDIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                    "downloads", "xiangtang")
 WM_CHAR = 0x0102
 WM_COMMAND = 0x0111
 BM_CLICK = 0x00F5

@@ -15,9 +15,9 @@ rem  The C-side tests come from build_c.bat:
 rem    dist\test_logic.exe     expect "50 passed, 0 failed"
 rem    dist\test_report.exe    expect ALL PASSED
 rem    dist\test_package.exe   real end-to-end check of "generate report"
-rem                            (evidence folders + clip cutting); only runs when
-rem                            PKG is set to an initial-result folder:
-rem                                set PKG=downloads\xt_v020
+rem                            (evidence frames + both report variants); only runs
+rem                            when PKG is set to an initial-result folder:
+rem                                set PKG=downloads\xiangtang
 rem                                _reuse\test_python.bat
 rem                            it regenerates that folder's review output in place.
 rem
@@ -95,7 +95,7 @@ goto :summary
 :no_pkg
 echo.
 echo  [SKIP] evidence-packaging test - set PKG to an initial-result folder, e.g.
-echo         set PKG=downloads\xt_v020
+echo         set PKG=downloads\xiangtang
 
 :summary
 rem  Light-weight report links: run this AFTER the packaging test, because that

@@ -29,7 +29,7 @@ def summarize(path):
 def main():
     args = sys.argv[1:]
     if not args:
-        base = os.path.join("downloads", "xt_v021", "人工审核结果")
+        base = os.path.join("downloads", "xiangtang", "人工审核结果")
         args = [os.path.join(base, "违章检测报告_轻量版.html")]
     for p in args:
         if not os.path.exists(p):

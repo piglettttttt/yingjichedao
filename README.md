@@ -56,13 +56,13 @@ d:\Users\Lhh\Documents\dsh\yingjichedao\
 ├── .venv\                     Python 3.12.10 运行环境（不入库，按 requirements.txt 重建）
 ├── bin\                       外部工具 ffmpeg/ffprobe/yt-dlp（不入库，见 bin\README.md）
 ├── yolo11n.pt                 车辆检测权重（YOLO11n，COCO 车辆类）
-├── downloads\                 测试视频与历次成果（视频不入库；两份人工真值表入库）
-│   ├── 目押记录.xlsx            视频一的人工目押真值
-│   ├── ax285e_test\           单案例测试集（由 make_test_case.py 生成，给 test_report 用）
-│   ├── xiangtang\             视频二旧成果（v0.1.0 格式，保留作对照）
-│   ├── xiangtang_new\        视频二完整 30 秒成果（v0.3.0 格式，含证据帧目录）
-│   ├── xt_v021\               8 秒短跑成果（调链路用，含证据帧目录）
-│   └── ax_fixture_src\        fixture 来源成果
+├── downloads\                 测试视频、标定截图与检测成果（视频与大图不入库）
+│   ├── 目押记录.xlsx            视频一的人工目押真值（入库）
+│   ├── 参考结果.xlsx            视频二的人工比对真值（入库）
+│   ├── 流程图\                 操作步骤截图 7 张（入库，被 操作步骤.html 引用）
+│   ├── image_44/47/48/50/51.png  标定 ROI 用的红线截图（不入库）
+│   ├── xiangtang\             视频二 30 秒完整成果（检测结果 CSV/JSON + run_meta.json + 证据图）
+│   └── *.mp4                  测试视频（不入库）
 └── _reuse\                    ★ 主要工作区
     ├── PlateReview.cpp        审核 GUI 源码（C++，**必须保持纯 ASCII**）
     ├── test_logic.cpp         逻辑回归测试（40 项）
@@ -262,15 +262,15 @@ _reuse\run_pipeline.bat <视频> _reuse\roi\<名字>\roi.json <初成果目录> 
 | `result_merged.json` | `...runmeta.json` | 归并参数 + `script_chain`（谁跑了谁） |
 | 初成果目录 | `run_meta.json` | 全链路参数、ROI 指纹、视频指纹（sha256）、时间基准 |
 
-示例（`downloads\xt_v011\run_meta.json`）：能直接看出这批成果用的是
-`roi_image50.json`（附 sha256 与多边形）、`--overlap-thresh 0.35`、`--high-conf 0.9` 等。
+示例（`downloads\xiangtang\run_meta.json`）：能直接看出这批成果用的是
+`roi_image50\roi.json`（附 sha256 与多边形）、`--overlap-thresh 0.35`、`--high-conf 0.9` 等。
 **视频与 ROI 用 sha256 而不是修改时间**：换机器重新拷贝后 mtime 必变，哈希不变。
 
 ## 测试
 
 ```
 _reuse\test_python.bat                      rem Python + C 基础回归
-set PKG=downloads\xt_v021
+set PKG=downloads\xiangtang
 _reuse\test_python.bat                      rem 追加「生成报告」端到端（归档证据 + 两份报告）
 ```
 
@@ -306,12 +306,11 @@ _reuse\test_python.bat                      rem 追加「生成报告」端到�
 
 **已完成**：主链路跑通并交付到人工审核；视频二（湘塘）**0 漏检**；C 侧回归测试全通过；
 一键脚本端到端实跑成功（`exit 0`，14 条轨迹经归并 → **10 个案例**，
-`粤ACH5795` 3 条并 1、`粤GD38897` 2 条并 1、`粤C29V19` 2 条并 1）；
-v0.2.0 证据装包在真实产出上端到端通过（10/10 案例归档原图 + 剪出片段，
-8/10 案例取到第二证据帧，2 个如实留空）。
+`粤ACH5795` 3 条并 1、`粤GD38897` 2 条并 1、`粤C29V19` 2 条并 1；
+10 个案例中 7 个取满三张证据帧、2 个只有 1 张、1 个 2 张，均为可辨识帧不足所致）。
 
-产物样例：`downloads\xt_v020\`（检测产出 + `人工审核结果\` 下的按车牌归档证据）；
-`downloads\xt_v011\`（v0.1.1 的检测产出，含 `run_meta.json`）。
+产物样例：`downloads\xiangtang\`（视频二 30 秒完整成果：`检测结果.csv/.json`、
+`run_meta.json`、`证据图\` 的审核用图与每案例的证据帧目录）。
 
 **已知未修**（详见 [`ai_task_v0.1.0.md`](ai_task_v0.1.0.md) 第 6 章）：
 
