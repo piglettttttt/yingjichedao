@@ -1,6 +1,6 @@
 # 应急车道车牌取证（Emergency Lane Plate Evidence）
 
-**当前版本：v0.1.1** ｜ 修改时间：2026-10-11 19:21
+**当前版本：v0.1.1** ｜ 修改时间：2026-10-11 19:21 ｜ git：`master` @ `0895d9f`
 
 > **v0.1.1 改了什么**：只做工程化完善，**未改任何检测/审核逻辑**。
 > ① 修复指导文档 `ai_task_v0.1.0.md` §3.3 里跑不通的命令（缺 `--veh-jsonl`、`merge_tracks.py` 参数名写错）；
@@ -35,6 +35,7 @@
 d:\Users\Lhh\Documents\dsh\yingjichedao\
 ├── README.md                  ← 本文件
 ├── requirements.txt           Python 依赖（从实际 .venv 冻结）
+├── requirements-torch.txt     torch/torchvision 单独装（`+cpu` 只有官方索引有）
 ├── ai_task_v0.1.0.md          ★ 交接文档（现行）；v0.0.0 是最初《任务口述》
 ├── .gitignore
 ├── .venv\                     Python 3.12.10 运行环境（不入库，按 requirements.txt 重建）
@@ -76,7 +77,17 @@ d:\Users\Lhh\Documents\dsh\yingjichedao\
 | 编译器 | MSVC 2022 Community（`vcvarsall.bat x64`），仅审核 GUI 需要 |
 | 网络 | 直连 github.com 不通；`api.github.com`、bilibili 可通。下 GitHub 资源用镜像前缀 `https://ghfast.top/<url>` |
 
-重建环境：`python -m venv .venv` 后 `pip install -r requirements.txt`。
+重建环境：
+
+```
+python -m venv .venv
+.venv\Scripts\python.exe -m pip install -r requirements.txt
+```
+
+> `requirements.txt` 第一行 `-r requirements-torch.txt` 会把 torch 一起装上，而
+> `requirements-torch.txt` 里自带 `--index-url https://download.pytorch.org/whl/cpu`。
+> **这一步不能省**：`torch==2.14.1+cpu` 的 `+cpu` 是本地版本号，默认 PyPI 上找不到，
+> 直接 `pip install torch==2.14.1+cpu` 会报 `No matching distribution found`。
 
 ## 快速开始
 
@@ -200,3 +211,8 @@ v0.1.1 一键脚本端到端实跑成功（`exit 0`，14 条轨迹经归并 → 
   接手先读 v0.1.0 的第 0 章「接手须知」与第 2 章「当前成果与关键决定」，再读第 6 章「未竟事项」。
 - 本仓库已纳入 git（`master` 分支）。提交信息格式：`vX.Y.Z 简短描述`。
 - 版本号约定：主版本=形态/架构变化，次版本=功能新增，补丁版本=修复与小改。
+- **git 里有什么 / 没有什么**：代码、文档、ONNX 模型（3.5 MB）、`yolo11n.pt`（5.6 MB）、
+  人工比对真值表（xlsx）、`xt_v011` 的 CSV/JSON/`run_meta.json` 已入库；
+  视频、`.venv`（1.3 GB）、`bin\`（221 MB）、编译产物 exe、证据图、`_reuse\run\` 不入库
+  （规则见 [`.gitignore`](.gitignore)，缺失件按本 README 与 `bin\README.md` 重建）。
+  仓库 `.git` 约 7.5 MB。

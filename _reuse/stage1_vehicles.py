@@ -107,7 +107,10 @@ def check_load_roi_and_bottom_span():
         with open(q, "w", encoding="utf-8") as fh:
             json.dump({"polygon": [[3, 4], [5, 6]]}, fh)
         assert load_roi(q, 1920, 1080) == [(3, 4), (5, 6)], "无 polygon_norm 时用像素多边形"
-    print("  [PASS] load_roi / bottom_span_in_roi")
+    # 默认权重必须是**存在的绝对路径**：相对名会触发 ultralytics 联网下载（本机不通）
+    assert os.path.isabs(DEFAULT_WEIGHTS), "权重默认值必须是绝对路径：%s" % DEFAULT_WEIGHTS
+    assert os.path.exists(DEFAULT_WEIGHTS), "默认权重文件不存在：%s" % DEFAULT_WEIGHTS
+    print("  [PASS] load_roi / bottom_span_in_roi / DEFAULT_WEIGHTS")
 
 
 def main():

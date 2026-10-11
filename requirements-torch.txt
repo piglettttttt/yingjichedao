@@ -1,0 +1,17 @@
+# torch / torchvision —— **必须用 PyTorch 官方 CPU 索引**。
+#
+# 为什么要单独一个文件：`+cpu` 是本地版本号，默认 PyPI 上没有这个文件，
+# 直接 `pip install "torch==2.14.1+cpu"` 会报 "No matching distribution found"。
+#
+# 装法（二选一）：
+#     .venv\Scripts\python.exe -m pip install -r requirements-torch.txt
+# 或在装 requirements.txt 时由 -r 自动带入（requirements.txt 第一行已 include 本文件）。
+#
+# 说明：
+# - torch 是 **CPU 版**。本项目不需要 GPU，装 GPU 版会改变推理行为且体积大得多。
+# - torch 2.14 的 ONNX 导出走 torch.export，会遍历 sys.modules 检查 __spec__，
+#   因此**不能**用桩模块替换依赖（踩坑记录见 export_onnx.py）。
+--index-url https://download.pytorch.org/whl/cpu
+
+torch==2.14.1+cpu
+torchvision==0.29.1+cpu
