@@ -1,6 +1,10 @@
 # 应急车道车牌取证（Emergency Lane Plate Evidence）
 
-**当前版本：v0.3.0** ｜ 修改时间：2026-10-11 ｜ git 分支 `master`（最新提交见 `git log`）
+**当前版本：v0.3.0** ｜ 修改时间：2026-10-11 ｜ git 分支 `main`
+
+> **仓库**：<https://github.com/piglettttttt/yingjichedao>
+>
+> **图形化操作步骤**：[`操作步骤.html`](操作步骤.html)（开头即流程图总览，浏览器打开即可）
 
 > **v0.3.0 改了什么**：证据链重做，检测逻辑未动。
 > ① **删除** 30 秒违章视频片段剪裁（用户要求删掉，代码与报告片段表全部移除）；
@@ -329,14 +333,21 @@ _reuse\test_python.bat                      rem 追加「生成报告」端到�
 
 - 指导文档：`ai_task_vX.Y.Z.md`，记录该轮迭代开始前的要求、迭代中的沟通、迭代后的总结。
   接手先读 v0.1.0 的第 0 章「接手须知」与第 2 章「当前成果与关键决定」，再读第 6 章「未竟事项」。
-- 本仓库已纳入 git（`master` 分支）。提交信息格式：`vX.Y.Z 简短描述`。
+- 本仓库已纳入 git（`main` 分支，远端
+  **[github.com/piglettttttt/yingjichedao](https://github.com/piglettttttt/yingjichedao)**）。
+  提交信息格式：`vX.Y.Z 简短描述`。
 - 版本号约定：主版本=形态/架构变化，次版本=功能新增，补丁版本=修复与小改。
 - **git 里有什么 / 没有什么**（换机器 clone 前先看这里，详细步骤见
   「[换一台电脑 clone 之后，要能跑需要做 5 件事](#换一台电脑-clone-之后要能跑需要做-5-件事)」）：
   - **入库**：源码、`.bat`、文档、ONNX 模型（3.5 MB）、`yolo11n.pt`（5.4 MB）、
-    人工比对真值表（xlsx）、几个成果目录的 CSV/JSON/`run_meta.json`、
+    人工比对真值表（xlsx）、`downloads\xiangtang` 的 CSV/JSON/`run_meta.json`、
+    `downloads\流程图\` 的操作步骤截图、以及
     **`_reuse\dist\` 的 4 个 exe**（审核程序是刚需，clone 即可用）。
   - **不入库**：视频、`.venv`（1.3 GB）、`bin\`（221 MB）、证据图与审核产物、
-    `_reuse\run\`（中间产物）、`_reuse\clpr` 的权重。
+    `_reuse\run\`（中间产物）、`_reuse\clpr` 的权重、`.archify\`（制图工具中间产物）。
     规则见 [`.gitignore`](.gitignore)，缺失件按本 README 与 `bin\README.md` 补。
-  - 仓库本体约 9.6 MB（110 个文件）。
+  - 仓库本体约 9.4 MB（67 个文件）。
+
+```bash
+git clone https://github.com/piglettttttt/yingjichedao.git
+```
